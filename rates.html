@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rates & Reservations — Sunset Shores Carpinteria</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --sand: #F5EDD8; --sand-light: #FBF7EE; --sand-mid: #E8D9B8;
+    --ocean: #1C4F6B; --ocean-deep: #0F2F42; --ocean-mid: #2E7A9E; --ocean-light: #A8CDD9;
+    --coral: #D4614B; --sunset: #E8935A; --white: #FFFFFF;
+    --text-dark: #1A1A1A; --text-mid: #4A4A4A; --text-light: #7A7A7A;
+    --font-serif: 'Cormorant Garamond', Georgia, serif; --font-sans: 'DM Sans', sans-serif;
+  }
+  body { font-family: var(--font-sans); background: var(--sand-light); color: var(--text-dark); }
+
+  nav {
+    background: var(--ocean-deep); padding: 1rem 2rem;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+  }
+  .nav-logo { font-family: var(--font-serif); font-size: 1.3rem; font-weight: 300; color: var(--white); text-decoration: none; letter-spacing: .04em; line-height: 1.1; }
+  .nav-logo span { display: block; font-family: var(--font-sans); font-size: .6rem; letter-spacing: .22em; text-transform: uppercase; color: var(--ocean-light); margin-top: 2px; }
+  .nav-back { color: var(--ocean-light); text-decoration: none; font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; display: flex; align-items: center; gap: .4rem; transition: color .2s; }
+  .nav-back:hover { color: var(--white); }
+  .nav-back svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  .page-header {
+    background: linear-gradient(135deg, var(--ocean-deep) 0%, var(--ocean) 100%);
+    padding: 3rem 2rem; text-align: center;
+  }
+  .page-header h1 { font-family: var(--font-serif); font-size: clamp(2rem, 4vw, 3rem); font-weight: 300; color: var(--white); margin-bottom: .5rem; }
+  .page-header h1 em { font-style: italic; color: #F4B07A; }
+  .page-header p { color: rgba(255,255,255,.65); font-size: .88rem; font-weight: 300; }
+
+  .content-wrap { max-width: 980px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+
+  .section-label {
+    font-size: .68rem; letter-spacing: .3em; text-transform: uppercase; color: var(--coral);
+    font-weight: 400; margin-bottom: .8rem; display: flex; align-items: center; gap: .75rem;
+  }
+  .section-label::before { content: ''; display: inline-block; width: 24px; height: 1px; background: var(--coral); }
+  .section-heading {
+    font-family: var(--font-serif); font-size: clamp(1.7rem, 3vw, 2.3rem); font-weight: 300;
+    line-height: 1.15; color: var(--ocean-deep); margin-bottom: 1.5rem;
+  }
+  .section-heading em { font-style: italic; color: var(--ocean-mid); }
+
+  /* RATE TABLE */
+  .rate-table-wrap { overflow-x: auto; margin-bottom: 1rem; }
+  .rate-table { width: 100%; border-collapse: collapse; background: var(--white); border: 1px solid var(--sand-mid); border-radius: 4px; min-width: 600px; }
+  .rate-table th, .rate-table td { padding: .9rem 1.2rem; text-align: left; border-bottom: 1px solid var(--sand-mid); font-size: .88rem; }
+  .rate-table th { background: var(--ocean-deep); color: var(--white); font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 400; }
+  .rate-table th:first-child { border-radius: 4px 0 0 0; }
+  .rate-table th:last-child { border-radius: 0 4px 0 0; }
+  .rate-table tr:last-child td { border-bottom: none; }
+  .rate-table td:first-child { font-weight: 500; color: var(--ocean-deep); white-space: nowrap; }
+  .rate-table td { color: var(--text-mid); font-weight: 300; }
+  .rate-table tr:hover td { background: var(--sand-light); }
+  .rate-note { font-size: .78rem; color: var(--text-light); font-weight: 300; margin-bottom: 3rem; font-style: italic; }
+
+  /* UNIT TYPE CARDS */
+  .unit-types-grid { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 3.5rem; }
+  .unit-type-card {
+    background: var(--white); border: 1px solid var(--sand-mid); border-radius: 4px;
+    padding: 1.4rem 1.6rem; display: flex; gap: 1.2rem; align-items: flex-start;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .unit-type-card:hover { border-color: var(--ocean-mid); box-shadow: 0 4px 20px rgba(15,47,66,.06); }
+  .unit-type-icon {
+    width: 40px; height: 40px; border-radius: 50%; background: var(--sand);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: .1rem;
+  }
+  .unit-type-icon svg { width: 18px; height: 18px; stroke: var(--ocean); fill: none; stroke-width: 1.6; }
+  .unit-type-name { font-family: var(--font-serif); font-size: 1.15rem; font-weight: 500; color: var(--ocean-deep); margin-bottom: .35rem; }
+  .unit-type-desc { font-size: .87rem; color: var(--text-mid); line-height: 1.7; font-weight: 300; }
+
+  /* INFO SECTIONS */
+  .info-section { margin-bottom: 2.8rem; }
+  .info-heading {
+    font-size: .72rem; letter-spacing: .15em; text-transform: uppercase; color: var(--coral);
+    font-weight: 500; margin-bottom: 1rem; padding-bottom: .6rem; border-bottom: 2px solid var(--sand-mid);
+  }
+  .info-list { display: flex; flex-direction: column; gap: .7rem; }
+  .info-item { display: flex; align-items: flex-start; gap: .8rem; font-size: .9rem; color: var(--text-mid); line-height: 1.7; font-weight: 300; }
+  .info-item .check-icon { width: 18px; height: 18px; flex-shrink: 0; margin-top: .15rem; stroke: var(--ocean); fill: none; stroke-width: 2; }
+  .info-item strong { color: var(--ocean-deep); font-weight: 500; }
+
+  .alert-box {
+    background: #fdf0ee; border: 1px solid #e8b4ac; border-radius: 4px;
+    padding: 1.1rem 1.3rem; margin-top: .8rem; font-size: .87rem; color: #C0392B; line-height: 1.75;
+  }
+  .alert-box strong { display: block; margin-bottom: .3rem; font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; }
+
+  /* FEES TABLE */
+  .fees-table { width: 100%; border-collapse: collapse; background: var(--white); border: 1px solid var(--sand-mid); border-radius: 4px; overflow: hidden; }
+  .fees-table tr { border-bottom: 1px solid var(--sand-mid); }
+  .fees-table tr:last-child { border-bottom: none; }
+  .fees-table td { padding: .9rem 1.3rem; font-size: .9rem; color: var(--text-mid); font-weight: 300; }
+  .fees-table td:last-child { text-align: right; font-weight: 500; color: var(--ocean); font-family: var(--font-serif); font-size: 1.05rem; }
+
+  /* CTA BOX */
+  .cta-box {
+    background: var(--ocean-deep); border-radius: 4px; padding: 2.5rem 2rem; text-align: center; margin-top: 1rem;
+  }
+  .cta-box h3 { font-family: var(--font-serif); font-size: 1.6rem; font-weight: 300; color: var(--white); margin-bottom: .6rem; }
+  .cta-box p { color: rgba(255,255,255,.65); font-size: .9rem; font-weight: 300; margin-bottom: 1.6rem; line-height: 1.7; }
+  .cta-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--coral); color: var(--white); padding: .85rem 2rem; font-size: .82rem; font-weight: 500;
+    letter-spacing: .1em; text-transform: uppercase; border: none; cursor: pointer; text-decoration: none;
+    border-radius: 2px; display: inline-block; transition: background .2s;
+  }
+  .btn-primary:hover { background: #bf4f3b; }
+  .btn-ghost {
+    color: rgba(255,255,255,.9); padding: .85rem 2rem; font-size: .82rem; font-weight: 400;
+    letter-spacing: .08em; text-transform: uppercase; border: 1px solid rgba(255,255,255,.4);
+    background: transparent; cursor: pointer; text-decoration: none; border-radius: 2px;
+    display: inline-block; transition: background .2s, border-color .2s;
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.7); }
+
+  footer {
+    background: var(--ocean-deep); color: rgba(255,255,255,.55); padding: 2.5rem 2rem;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;
+    border-top: 1px solid rgba(255,255,255,.08);
+  }
+  .footer-logo { font-family: var(--font-serif); font-size: 1.2rem; font-weight: 300; color: var(--white); letter-spacing: .04em; }
+  .footer-copy { font-size: .75rem; color: rgba(255,255,255,.3); }
+
+  @media (max-width: 600px) {
+    nav { padding: 1rem 1.2rem; }
+    .content-wrap { padding: 2.5rem 1.2rem 3rem; }
+    .unit-type-card { flex-direction: column; }
+    .cta-buttons { flex-direction: column; }
+    .cta-buttons a { width: 100%; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">Sunset Shores <span>Carpinteria, California</span></a>
+  <a href="index.html" class="nav-back">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Back to Site
+  </a>
+</nav>
+
+<div class="page-header">
+  <h1>Rates &amp; <em>Reservations</em></h1>
+  <p>Furnished vacation condominiums on the sand at Carpinteria</p>
+</div>
+
+<div class="content-wrap">
+
+  <!-- RATES TABLE -->
+  <p class="section-label">Pricing</p>
+  <h2 class="section-heading">Furnished Vacation<br>Condominium <em>Rates</em></h2>
+
+  <div class="rate-table-wrap">
+    <table class="rate-table">
+      <thead>
+        <tr>
+          <th>Unit Type</th>
+          <th>Winter Monthly</th>
+          <th>Winter Weekly</th>
+          <th>Summer Weekly</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Large Studio</td>
+          <td>Call for rate</td>
+          <td>Call for rate</td>
+          <td>Call for rate</td>
+        </tr>
+        <tr>
+          <td>Deluxe Studio</td>
+          <td>Call for rate</td>
+          <td>Call for rate</td>
+          <td>Call for rate</td>
+        </tr>
+        <tr>
+          <td>One Bedroom</td>
+          <td>Call for rate</td>
+          <td>Call for rate</td>
+          <td>Call for rate</td>
+        </tr>
+        <tr>
+          <td>Large One Bedroom</td>
+          <td>Call for rate</td>
+          <td>Call for rate</td>
+          <td>Call for rate</td>
+        </tr>
+        <tr>
+          <td>Two Bedrooms</td>
+          <td>Call for rate</td>
+          <td>Call for rate</td>
+          <td>Call for rate</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="rate-note">Rates vary by season and length of stay. For current pricing and live availability, use our online booking tool below or call our office directly.</p>
+
+  <!-- UNIT TYPE DESCRIPTIONS -->
+  <p class="section-label">Floor Plans</p>
+  <h2 class="section-heading">Choose Your <em>Unit Type</em></h2>
+
+  <div class="unit-types-grid">
+    <div class="unit-type-card">
+      <div class="unit-type-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg></div>
+      <div>
+        <div class="unit-type-name">Large Studio</div>
+        <div class="unit-type-desc">Sleeps a maximum of three people. This unit has a sleeping alcove furnished with a queen size bed and a sofa sleeper in the living room.</div>
+      </div>
+    </div>
+
+    <div class="unit-type-card">
+      <div class="unit-type-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><circle cx="17" cy="6" r="1"/></svg></div>
+      <div>
+        <div class="unit-type-name">Deluxe Studio</div>
+        <div class="unit-type-desc">Sleeps a maximum of three people. This unit has a bedroom with a queen size bed, a sofa sleeper in the living room, and features either a private ocean view balcony or a private patio.</div>
+      </div>
+    </div>
+
+    <div class="unit-type-card">
+      <div class="unit-type-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+      <div>
+        <div class="unit-type-name">One Bedroom</div>
+        <div class="unit-type-desc">Sleeps a maximum of four people. This unit has a queen size bed in the bedroom and a sofa sleeper in the living room.</div>
+      </div>
+    </div>
+
+    <div class="unit-type-card">
+      <div class="unit-type-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/><line x1="3" y1="14" x2="21" y2="14"/></svg></div>
+      <div>
+        <div class="unit-type-name">Large One Bedroom</div>
+        <div class="unit-type-desc">Sleeps a maximum of four people. This unit has a queen size bed in the bedroom and a sofa sleeper in the living room. Provides more living space than a One Bedroom and features a larger kitchen with separate dining area. Some have private patios as well.</div>
+      </div>
+    </div>
+
+    <div class="unit-type-card">
+      <div class="unit-type-icon"><svg viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M5 21V7l8-4 8 4v14"/><path d="M9 9h0M9 13h0M9 17h0M15 9h0M15 13h0M15 17h0"/></svg></div>
+      <div>
+        <div class="unit-type-name">Two Bedrooms</div>
+        <div class="unit-type-desc">Sleeps a maximum of six people. One bedroom has a queen size bed, one bedroom has twin beds, and the living room has a queen size sofa sleeper.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GENERAL INFORMATION -->
+  <div class="info-section">
+    <div class="info-heading">General Information</div>
+    <div class="info-list">
+      <div class="info-item">
+        <svg class="check-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>Rates include all utilities including Cable TV with HBO and Showtime Premium channels.</span>
+      </div>
+      <div class="info-item">
+        <svg class="check-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>Phone service and linens are <strong>not included</strong>.</span>
+      </div>
+      <div class="info-item">
+        <svg class="check-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>All units are <strong>non-smoking</strong>.</span>
+      </div>
+      <div class="info-item">
+        <svg class="check-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>Sorry, <strong>no pets</strong>! (Service animals specifically trained to aid a person with a disability are welcome.)</span>
+      </div>
+      <div class="info-item">
+        <svg class="check-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>Yes, we <strong>accept credit cards</strong>!</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- RENTAL DEPOSITS -->
+  <div class="info-section">
+    <div class="info-heading">Rental Deposits</div>
+    <div class="info-list">
+      <div class="info-item">
+        <svg class="check-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        <span><strong>$500 Security Deposit</strong> (refundable) to hold reservation.</span>
+      </div>
+      <div class="info-item">
+        <svg class="check-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>Rent is due <strong>30 days prior to arrival</strong>.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CANCELLATION & REFUND POLICY -->
+  <div class="info-section">
+    <div class="info-heading">Cancellation &amp; Refund Policy</div>
+    <div class="alert-box">
+      <strong>Cancellation Policy</strong>
+      All cancelled reservations are subject to a $250 cancellation fee. If you cancel less than 60 days prior to arrival, a $500 cancellation fee will apply.
+    </div>
+    <div class="alert-box" style="margin-top: .8rem;">
+      <strong>Refund Policy</strong>
+      No refunds will be issued for reservations cancelled less than 30 days prior to arrival unless the unit is re-rented for the same time period and rate.
+    </div>
+  </div>
+
+  <!-- ADDITIONAL RENTAL FEES -->
+  <div class="info-section">
+    <div class="info-heading">Additional Rental Fees</div>
+    <table class="fees-table">
+      <tr><td>Reservation Fee</td><td>$50</td></tr>
+      <tr><td>Cleaning Fee</td><td>$150</td></tr>
+      <tr><td>Tax on short term stays (less than 30 days)</td><td>12%</td></tr>
+    </table>
+  </div>
+
+  <!-- NEED MORE INFO CTA -->
+  <div class="cta-box">
+    <h3>Need More Information?</h3>
+    <p>Visit our FAQ page for answers to frequently asked questions, or contact us directly — we're happy to help plan your stay.</p>
+    <div class="cta-buttons">
+      <a href="booking.html" class="btn-primary">Check Availability</a>
+      <a href="tel:+18056843682" class="btn-ghost">📞 (805) 684-3682</a>
+      <a href="mailto:info@sunsetshorescarp.com" class="btn-ghost">✉️ info@sunsetshorescarp.com</a>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-logo">Sunset Shores</div>
+  <p class="footer-copy">&copy; 2026 Sunset Shores Coastal Condominiums</p>
+</footer>
+
+</body>
+</html>

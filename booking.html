@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book Your Stay — Sunset Shores Carpinteria</title>
+<script src="https://js.stripe.com/v3/"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --sand: #F5EDD8; --sand-light: #FBF7EE; --sand-mid: #E8D9B8;
+    --ocean: #1C4F6B; --ocean-deep: #0F2F42; --ocean-mid: #2E7A9E; --ocean-light: #A8CDD9;
+    --coral: #D4614B; --sunset: #E8935A; --white: #FFFFFF; --green: #2E7D5A; --red: #C0392B;
+    --text-dark: #1A1A1A; --text-mid: #4A4A4A; --text-light: #7A7A7A;
+    --font-serif: 'Cormorant Garamond', Georgia, serif; --font-sans: 'DM Sans', sans-serif;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--font-sans); background: var(--sand-light); color: var(--text-dark); min-height: 100vh; }
+
+  nav {
+    background: var(--ocean-deep); padding: 1rem 2rem;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+  }
+  .nav-logo { font-family: var(--font-serif); font-size: 1.3rem; font-weight: 300; color: var(--white); text-decoration: none; letter-spacing: .04em; line-height: 1.1; }
+  .nav-logo span { display: block; font-family: var(--font-sans); font-size: .6rem; letter-spacing: .22em; text-transform: uppercase; color: var(--ocean-light); margin-top: 2px; }
+  .nav-back { color: var(--ocean-light); text-decoration: none; font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; display: flex; align-items: center; gap: .4rem; transition: color .2s; }
+  .nav-back:hover { color: var(--white); }
+  .nav-back svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  .page-header {
+    background: linear-gradient(135deg, var(--ocean-deep) 0%, var(--ocean) 100%);
+    padding: 3rem 2rem; text-align: center;
+  }
+  .page-header h1 { font-family: var(--font-serif); font-size: clamp(2rem, 4vw, 3rem); font-weight: 300; color: var(--white); margin-bottom: .5rem; }
+  .page-header h1 em { font-style: italic; color: #F4B07A; }
+  .page-header p { color: rgba(255,255,255,.65); font-size: .88rem; font-weight: 300; }
+
+  .booking-layout { max-width: 1100px; margin: 0 auto; padding: 2.5rem 1.5rem; display: grid; grid-template-columns: 1fr 360px; gap: 2rem; align-items: start; }
+
+  .steps-nav { display: flex; gap: 0; margin-bottom: 2rem; border-radius: 4px; overflow: hidden; border: 1px solid var(--sand-mid); }
+  .step-tab { flex: 1; padding: .8rem 1rem; text-align: center; font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--text-light); background: var(--white); border-right: 1px solid var(--sand-mid); font-weight: 400; }
+  .step-tab:last-child { border-right: none; }
+  .step-tab.active { background: var(--ocean-deep); color: var(--white); }
+  .step-tab.done { background: var(--sand); color: var(--ocean); }
+
+  .panel { background: var(--white); border: 1px solid var(--sand-mid); border-radius: 4px; padding: 2rem; }
+  .panel-title { font-family: var(--font-serif); font-size: 1.6rem; font-weight: 400; color: var(--ocean-deep); margin-bottom: .4rem; }
+  .panel-subtitle { font-size: .83rem; color: var(--text-light); font-weight: 300; margin-bottom: 1.8rem; }
+
+  .search-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+  .form-group { display: flex; flex-direction: column; gap: .4rem; }
+  .form-group.full { grid-column: 1 / 3; }
+  .form-group label { font-size: .68rem; letter-spacing: .15em; text-transform: uppercase; color: var(--text-light); font-weight: 400; }
+  .form-group input, .form-group select {
+    border: 1px solid var(--sand-mid); padding: .75rem 1rem; font-size: .9rem;
+    font-family: var(--font-sans); border-radius: 2px; outline: none; background: var(--sand-light);
+    transition: border-color .2s; color: var(--text-dark);
+  }
+  .form-group input:focus, .form-group select:focus { border-color: var(--ocean-mid); background: var(--white); }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; padding: .9rem 2rem; font-size: .82rem; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; border: none; cursor: pointer; border-radius: 2px; transition: all .2s; font-family: var(--font-sans); text-decoration: none; }
+  .btn-primary { background: var(--coral); color: var(--white); width: 100%; }
+  .btn-primary:hover:not(:disabled) { background: #bf4f3b; transform: translateY(-1px); }
+  .btn-primary:disabled { background: var(--sand-mid); color: var(--text-light); cursor: not-allowed; }
+  .btn-ocean { background: var(--ocean-deep); color: var(--white); }
+  .btn-ocean:hover { background: var(--ocean); }
+  .btn-ghost { background: transparent; color: var(--ocean); border: 1px solid var(--ocean-mid); }
+  .btn-ghost:hover { background: var(--sand-light); }
+
+  .loader { display: none; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; padding: 3rem; }
+  .loader.visible { display: flex; }
+  .spinner { width: 36px; height: 36px; border: 3px solid var(--sand-mid); border-top-color: var(--ocean); border-radius: 50%; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loader p { font-size: .85rem; color: var(--text-light); font-weight: 300; }
+
+  .alert { padding: 1rem 1.2rem; border-radius: 4px; font-size: .88rem; margin-bottom: 1.5rem; display: none; line-height: 1.6; }
+  .alert.visible { display: block; }
+  .alert-error { background: #fdf0ee; border: 1px solid #e8b4ac; color: var(--red); }
+  .alert-success { background: #edf7f2; border: 1px solid #a8d5bc; color: var(--green); }
+  .alert-info { background: #eef5fb; border: 1px solid #a8cdd9; color: var(--ocean); }
+
+  .units-list { display: flex; flex-direction: column; gap: 1rem; }
+  .unit-result { border: 1px solid var(--sand-mid); border-radius: 4px; overflow: hidden; transition: border-color .2s, box-shadow .2s; }
+  .unit-result:hover { border-color: var(--ocean-mid); box-shadow: 0 4px 20px rgba(15,47,66,.08); }
+  .unit-result.selected { border-color: var(--ocean); box-shadow: 0 4px 20px rgba(15,47,66,.15); }
+  .unit-result-header { padding: 1.2rem 1.5rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; background: var(--sand-light); cursor: pointer; }
+  .unit-result-name { font-family: var(--font-serif); font-size: 1.2rem; font-weight: 400; color: var(--ocean-deep); }
+  .unit-result-meta { font-size: .78rem; color: var(--text-light); margin-top: .2rem; }
+  .unit-result-price { text-align: right; }
+  .unit-price-total { font-family: var(--font-serif); font-size: 1.6rem; font-weight: 400; color: var(--ocean); line-height: 1; }
+  .unit-price-label { font-size: .7rem; color: var(--text-light); margin-top: .2rem; }
+  .unit-result-body { padding: 1.2rem 1.5rem; display: none; }
+  .unit-result.selected .unit-result-body { display: block; }
+  .charges-table { width: 100%; border-collapse: collapse; font-size: .84rem; margin-bottom: 1rem; }
+  .charges-table tr { border-bottom: 1px solid var(--sand-mid); }
+  .charges-table tr:last-child { border-bottom: none; }
+  .charges-table td { padding: .5rem 0; color: var(--text-mid); }
+  .charges-table td:last-child { text-align: right; font-weight: 500; color: var(--text-dark); }
+  .charges-table .total-row td { font-weight: 500; font-size: .9rem; color: var(--ocean-deep); border-top: 2px solid var(--sand-mid); padding-top: .8rem; }
+  .charges-table .deposit-row td { color: var(--coral); font-size: .82rem; }
+
+  .guest-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+  .guest-form .full { grid-column: 1 / 3; }
+  .section-divider { font-size: .68rem; letter-spacing: .2em; text-transform: uppercase; color: var(--coral); margin: 1.5rem 0 1rem; grid-column: 1 / 3; display: flex; align-items: center; gap: .75rem; }
+  .section-divider::before, .section-divider::after { content: ''; flex: 1; height: 1px; background: var(--sand-mid); }
+
+  .card-wrap { position: relative; }
+  .card-wrap input { padding-right: 3rem; }
+  .card-emoji { position: absolute; right: .8rem; top: 50%; transform: translateY(-50%); font-size: 1.1rem; }
+
+  .summary-card { background: var(--white); border: 1px solid var(--sand-mid); border-radius: 4px; padding: 1.5rem; position: sticky; top: 1.5rem; }
+  .summary-title { font-family: var(--font-serif); font-size: 1.2rem; font-weight: 400; color: var(--ocean-deep); margin-bottom: 1rem; padding-bottom: .75rem; border-bottom: 1px solid var(--sand-mid); }
+  .summary-row { display: flex; justify-content: space-between; padding: .5rem 0; font-size: .85rem; gap: .5rem; border-bottom: 1px solid rgba(232,217,184,.5); }
+  .summary-row:last-of-type { border-bottom: none; }
+  .summary-label { color: var(--text-light); font-weight: 300; }
+  .summary-value { color: var(--text-dark); font-weight: 400; text-align: right; font-size: .84rem; }
+  .summary-total { display: flex; justify-content: space-between; padding-top: 1rem; margin-top: .5rem; border-top: 2px solid var(--sand-mid); align-items: center; }
+  .summary-total-label { font-weight: 500; color: var(--ocean-deep); }
+  .summary-total-value { font-family: var(--font-serif); font-size: 1.5rem; font-weight: 400; color: var(--ocean); }
+  .summary-empty { color: var(--text-light); font-size: .85rem; font-style: italic; text-align: center; padding: 1rem 0; }
+  .summary-deposit { font-size: .75rem; color: var(--coral); margin-top: .6rem; font-weight: 400; }
+
+  .step-buttons { display: flex; gap: 1rem; margin-top: 1.8rem; flex-wrap: wrap; }
+
+  .review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+  .review-box { background: var(--sand-light); border-radius: 4px; padding: 1.2rem; }
+  .review-box-label { font-size: .65rem; letter-spacing: .2em; text-transform: uppercase; color: var(--text-light); margin-bottom: .7rem; }
+  .review-box p { font-size: .88rem; line-height: 1.85; color: var(--text-mid); font-weight: 300; }
+  .review-box strong { color: var(--ocean-deep); font-weight: 500; }
+
+  .confirm-box { text-align: center; padding: 2rem 1rem; }
+  .confirm-icon { width: 64px; height: 64px; background: #edf7f2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; }
+  .confirm-icon svg { width: 32px; height: 32px; stroke: var(--green); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .confirm-box h2 { font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; color: var(--ocean-deep); margin-bottom: .5rem; }
+  .confirm-box p { color: var(--text-mid); font-size: .9rem; font-weight: 300; line-height: 1.75; }
+  .confirm-id { font-family: var(--font-serif); font-size: 1.6rem; color: var(--coral); margin: 1.2rem 0; }
+  .confirm-details { background: var(--sand-light); border-radius: 4px; padding: 1.5rem; margin: 1.5rem 0; text-align: left; }
+
+  @media (max-width: 800px) {
+    .booking-layout { grid-template-columns: 1fr; }
+    .summary-card { position: static; }
+    .search-form { grid-template-columns: 1fr; }
+    .form-group.full { grid-column: 1; }
+    .guest-form { grid-template-columns: 1fr; }
+    .guest-form .full, .section-divider { grid-column: 1; }
+    .review-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    .steps-nav { font-size: .6rem; }
+    .step-tab { padding: .65rem .3rem; letter-spacing: .04em; }
+    .panel { padding: 1.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">Sunset Shores <span>Carpinteria, California</span></a>
+  <a href="index.html" class="nav-back">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Back to Site
+  </a>
+</nav>
+
+<div class="page-header">
+  <h1>Book Your <em>Stay</em></h1>
+  <p>Real-time availability · Secure booking · Instant confirmation</p>
+</div>
+
+<div class="booking-layout">
+  <div>
+    <div class="steps-nav">
+      <div class="step-tab active" id="tab-1">1 · Search</div>
+      <div class="step-tab" id="tab-2">2 · Choose Unit</div>
+      <div class="step-tab" id="tab-3">3 · Your Details</div>
+      <div class="step-tab" id="tab-4">4 · Confirm</div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div id="step-1">
+      <div class="panel">
+        <h2 class="panel-title">Find Available Units</h2>
+        <p class="panel-subtitle">Enter your dates and number of guests to see live availability and pricing.</p>
+        <div id="search-alert" class="alert alert-error"></div>
+        <div class="search-form">
+          <div class="form-group">
+            <label>Check-In Date *</label>
+            <input type="date" id="arrivalDate" />
+          </div>
+          <div class="form-group">
+            <label>Check-Out Date *</label>
+            <input type="date" id="departureDate" />
+          </div>
+          <div class="form-group">
+            <label>Adults</label>
+            <select id="numberOfAdults">
+              <option value="1">1 Adult</option>
+              <option value="2" selected>2 Adults</option>
+              <option value="3">3 Adults</option>
+              <option value="4">4 Adults</option>
+              <option value="5">5 Adults</option>
+              <option value="6">6 Adults</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Children</label>
+            <select id="numberOfChildren">
+              <option value="0" selected>No Children</option>
+              <option value="1">1 Child</option>
+              <option value="2">2 Children</option>
+              <option value="3">3 Children</option>
+              <option value="4">4 Children</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Bedrooms</label>
+            <select id="numberOfBedrooms">
+              <option value="">Any</option>
+              <option value="1">1 Bedroom</option>
+              <option value="2">2 Bedrooms</option>
+            </select>
+          </div>
+          <div class="form-group" style="justify-content:flex-end;">
+            <label>&nbsp;</label>
+            <button class="btn btn-primary" onclick="searchUnits()" id="searchBtn">Search Availability</button>
+          </div>
+        </div>
+        <div class="loader" id="search-loader">
+          <div class="spinner"></div>
+          <p>Checking live availability…</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div id="step-2" style="display:none;">
+      <div class="panel">
+        <h2 class="panel-title">Available Units</h2>
+        <p class="panel-subtitle" id="results-subtitle">Select a unit to see full pricing.</p>
+        <div id="results-alert" class="alert alert-error"></div>
+        <div class="loader" id="results-loader"><div class="spinner"></div><p>Loading pricing…</p></div>
+        <div class="units-list" id="units-list"></div>
+        <div class="step-buttons">
+          <button class="btn btn-ghost" onclick="goToStep(1)">← Change Dates</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div id="step-3" style="display:none;">
+      <div class="panel">
+        <h2 class="panel-title">Your Details</h2>
+        <p class="panel-subtitle">Fill in your contact and payment info to complete the booking.</p>
+        <div id="guest-alert" class="alert alert-error"></div>
+        <div class="guest-form">
+          <div class="section-divider">Guest Information</div>
+          <div class="form-group"><label>First Name *</label><input type="text" id="firstName" placeholder="John" /></div>
+          <div class="form-group"><label>Last Name *</label><input type="text" id="lastName" placeholder="Doe" /></div>
+          <div class="form-group full"><label>Email Address *</label><input type="email" id="email" placeholder="john@example.com" /></div>
+          <div class="form-group"><label>Cell Phone *</label><input type="tel" id="cellPhone" placeholder="(555) 123-4567" /></div>
+          <div class="form-group"><label>Home Phone</label><input type="tel" id="homePhone" placeholder="(555) 987-6543" /></div>
+          <div class="form-group full"><label>Street Address *</label><input type="text" id="addressLine1" placeholder="123 Main Street" /></div>
+          <div class="form-group"><label>City *</label><input type="text" id="city" placeholder="Denver" /></div>
+          <div class="form-group"><label>State *</label><input type="text" id="guestState" placeholder="CO" maxlength="2" style="text-transform:uppercase;" /></div>
+          <div class="form-group"><label>ZIP Code *</label><input type="text" id="zipCode" placeholder="80602" /></div>
+          <div class="form-group"><label>Special Requests</label><input type="text" id="note" placeholder="Any notes for your stay…" /></div>
+          <div class="section-divider">Payment Information</div>
+          <div class="form-group full"><label>Name on Card *</label><input type="text" id="cardName" placeholder="John Doe" /></div>
+          <div class="form-group full">
+            <label>Card Details *</label>
+            <div id="stripe-card-element" style="border:1px solid var(--sand-mid); padding:.85rem 1rem; border-radius:2px; background:var(--sand-light);"></div>
+            <div id="stripe-card-errors" style="color:#C0392B; font-size:.78rem; margin-top:.4rem;"></div>
+            <div style="font-size:.7rem; color:var(--text-light); margin-top:.5rem; display:flex; align-items:center; gap:.4rem;">
+              <svg viewBox="0 0 24 24" style="width:13px; height:13px; stroke:var(--text-light); fill:none; stroke-width:2;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Secured by Stripe — your card details never touch our servers
+            </div>
+          </div>
+        </div>
+        <div class="step-buttons">
+          <button class="btn btn-ghost" onclick="goToStep(2)">← Back to Units</button>
+          <button class="btn btn-ocean" onclick="reviewBooking()">Review Booking →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div id="step-4" style="display:none;">
+      <div class="panel">
+        <h2 class="panel-title">Review & Confirm</h2>
+        <p class="panel-subtitle">Please check everything before confirming your reservation.</p>
+        <div id="confirm-alert" class="alert alert-error"></div>
+        <div id="review-content"></div>
+        <div class="loader" id="booking-loader" style="display:none;">
+          <div class="spinner"></div>
+          <p>Submitting your reservation…</p>
+        </div>
+        <div class="step-buttons" id="confirm-buttons">
+          <button class="btn btn-ghost" onclick="goToStep(3)">← Edit Details</button>
+          <button class="btn btn-primary" onclick="submitBooking()">Confirm & Book Now</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 5 SUCCESS -->
+    <div id="step-5" style="display:none;">
+      <div class="panel">
+        <div class="confirm-box">
+          <div class="confirm-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <h2>Booking Confirmed!</h2>
+          <p>Thank you for choosing Sunset Shores. A confirmation email will be sent shortly.</p>
+          <div class="confirm-id" id="confirm-res-id"></div>
+          <div class="confirm-details" id="confirm-details"></div>
+          <a href="index.html" class="btn btn-ocean" style="margin-top:1rem;">Return to Website</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div>
+    <div class="summary-card">
+      <div class="summary-title">Booking Summary</div>
+      <div id="summary-content"><p class="summary-empty">Select your dates to see pricing.</p></div>
+    </div>
+    <div style="margin-top:1.5rem; padding:1.2rem; background:var(--ocean-deep); border-radius:4px;">
+      <p style="font-size:.75rem; color:var(--ocean-light); line-height:1.75; font-weight:300;">
+        <strong style="color:var(--white); display:block; margin-bottom:.4rem;">Secure Booking</strong>
+        Your reservation is processed directly through Resort Management System (RMS). All data is encrypted and secure.
+      </p>
+      <p style="font-size:.72rem; color:rgba(255,255,255,.4); margin-top:.8rem;">
+        Questions? <a href="tel:+18056843682" style="color:var(--ocean-light); text-decoration:none;">(805) 684-3682</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ───────────────────────────────────────────────────────────────────
+/**
+ * PROXY_URL — change this one line when switching platforms:
+ *   Netlify:           '/.netlify/functions/rms'   ← current
+ *   Vercel:            '/api/rms'
+ *   Cloudflare Worker: 'https://yourworker.workers.dev/rms'
+ *   Node/Express:      'https://yourserver.com/api/rms'
+ */
+const PROXY_URL = '/.netlify/functions/rms';
+
+/**
+ * STRIPE CONFIG
+ * Publishable key is safe to expose in the browser — that's what it's for.
+ * The Secret key lives only in the Netlify function (charge.js) as an
+ * environment variable, never here.
+ */
+const STRIPE_PUBLISHABLE_KEY = 'pk_test_51TjD1NQ2L6OFhhCuP5mgNmLwVqE5q6ITyEd2gjEZKIXGQFXLlajDQ7OD79Sru3mq2QrSHweAAf04qAUtUQYqNBWe003aDpSfsI';
+const CHARGE_PROXY_URL = '/.netlify/functions/charge';
+
+const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
+const stripeElements = stripe.elements();
+const cardElement = stripeElements.create('card', {
+  style: {
+    base: {
+      fontSize: '15px',
+      fontFamily: '"DM Sans", sans-serif',
+      color: '#1A1A1A',
+      '::placeholder': { color: '#7A7A7A' }
+    },
+    invalid: { color: '#C0392B' }
+  }
+});
+// Mount card only when Step 3 becomes visible — prevents errors on page load
+let cardMounted = false;
+function mountCardIfNeeded() {
+  if (!cardMounted && document.getElementById('stripe-card-element')) {
+    cardElement.mount('#stripe-card-element');
+    cardElement.on('change', function(event) {
+      const displayError = document.getElementById('stripe-card-errors');
+      if (displayError) displayError.textContent = event.error ? event.error.message : '';
+    });
+    cardMounted = true;
+  }
+}
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+let state = {
+  arrivalDate: '', departureDate: '', adults: 2, children: 0, bedrooms: '',
+  units: [], selectedUnit: null, guest: {}, card: {}, paymentMethodId: null
+};
+
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+function fmtDate(d) {
+  if (!d) return '';
+  const [y, m, day] = d.split('-');
+  return `${m}/${day}/${y}`;
+}
+function fmtDisplay(d) {
+  if (!d) return '';
+  return new Date(d + 'T12:00:00').toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' });
+}
+function nights(a, b) {
+  if (!a || !b) return 0;
+  return Math.round((new Date(b) - new Date(a)) / 86400000);
+}
+function currency(v) {
+  return '$' + parseFloat(v || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+async function rmsGet(path) {
+  const url = `${PROXY_URL}?path=${encodeURIComponent(path)}`;
+  const res = await fetch(url);
+  if (res.status === 429) throw new Error('You\'re searching a bit too quickly — please wait a moment and try again.');
+  if (!res.ok) throw new Error('Server error: ' + res.status);
+  const text = await res.text();
+  return new DOMParser().parseFromString(text, 'text/xml');
+}
+function getX(doc, tag) {
+  const el = doc.querySelector(tag);
+  return el ? el.textContent.trim() : '';
+}
+function showAlert(id, msg, type='error') {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.className = `alert alert-${type} visible`;
+}
+function hideAlert(id) { document.getElementById(id).classList.remove('visible'); }
+function showLoader(id) { document.getElementById(id).classList.add('visible'); }
+function hideLoader(id) { document.getElementById(id).classList.remove('visible'); }
+function formatCard(input) {
+  let v = input.value.replace(/\D/g, '').slice(0, 16);
+  input.value = v.replace(/(.{4})/g, '$1 ').trim();
+  document.getElementById('cardIcon').textContent = v.startsWith('3') ? '🟢' : v.startsWith('5') ? '🟡' : '💳';
+}
+function goToStep(n) {
+  [1,2,3,4,5].forEach(i => document.getElementById('step-'+i).style.display = i===n ? 'block' : 'none');
+  [1,2,3,4].forEach(i => {
+    const t = document.getElementById('tab-'+i);
+    t.className = 'step-tab' + (i < n ? ' done' : i === n ? ' active' : '');
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (n === 3) mountCardIfNeeded();
+}
+
+// ── STEP 1: SEARCH ───────────────────────────────────────────────────────────
+async function searchUnits() {
+  const arrival   = document.getElementById('arrivalDate').value;
+  const departure = document.getElementById('departureDate').value;
+  const adults    = document.getElementById('numberOfAdults').value;
+  const children  = document.getElementById('numberOfChildren').value;
+  const bedrooms  = document.getElementById('numberOfBedrooms').value;
+
+  if (!arrival)   return showAlert('search-alert', 'Please select a check-in date.');
+  if (!departure) return showAlert('search-alert', 'Please select a check-out date.');
+  if (new Date(arrival) >= new Date(departure)) return showAlert('search-alert', 'Check-out must be after check-in.');
+  if (new Date(arrival) < new Date(new Date().toDateString())) return showAlert('search-alert', 'Check-in must be in the future.');
+
+  hideAlert('search-alert');
+  Object.assign(state, { arrivalDate: arrival, departureDate: departure, adults, children, bedrooms });
+
+  const btn = document.getElementById('searchBtn');
+  btn.disabled = true; btn.textContent = 'Searching…';
+  showLoader('search-loader');
+
+  try {
+    let path = `/unit/search?arrivalDate=${fmtDate(arrival)}&departureDate=${fmtDate(departure)}&numberOfAdults=${adults}&numberOfChildren=${children}&reservationStatus=A`;
+    if (bedrooms) path += `&numberOfBedrooms=${bedrooms}`;
+
+    const xml   = await rmsGet(path);
+    const units = Array.from(xml.querySelectorAll('unit'));
+
+    if (units.length === 0) {
+      return showAlert('search-alert', 'No units available for those dates. Please try different dates.');
+    }
+
+    state.units = units.map(u => {
+      const rateTotal   = parseFloat(getX(u, 'rateTotal') || '0');
+      const rentAmount  = parseFloat(getX(u, 'rentStandardAmount') || '0');
+      const baseRent    = rentAmount > 0 ? rentAmount : rateTotal;
+
+      // Get amenities from searchFields labels
+      const labels = Array.from(u.querySelectorAll('label'));
+      const amenities = [];
+      labels.forEach(l => {
+        const id   = l.getAttribute('id');
+        const name = l.textContent.trim();
+        const desc = l.getAttribute('description') || '';
+        if (id && id !== 'NO' && name) {
+          if (name === 'Pool' && id !== 'NO') amenities.push(desc || 'Pool');
+          else if (name === 'View' && id !== 'NO') amenities.push(desc || 'Ocean View');
+          else if (name === 'Air Cond' && id === 'YES') amenities.push('Air Conditioning');
+          else if (name === 'Sand Beach' && id === 'YES') amenities.push('Sand Beach');
+        }
+      });
+
+      // Get first photo
+      const photoEl = u.querySelector('photo url');
+      const photo   = photoEl ? photoEl.textContent.trim() : '';
+
+      // Get section description for unit type label
+      const sectionDesc   = getX(u, 'sectionDescription');
+      const locationDesc  = getX(u, 'locationDescription');
+
+      const unitId = getX(u, 'unitId');
+      const unitName = getX(u, 'localAddress') || unitId;
+
+      // Map RMS unit IDs/names to our local photo folders
+      // The RMS unitId typically contains the unit number — we match on that
+      function getLocalPhoto(id, name) {
+        const str = (id + ' ' + name).toLowerCase();
+        if (str.includes('128')) return 'images/units/128/02_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Living_room-DSC05129.jpg';
+        if (str.includes('131')) return 'images/units/131/04_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Living_room-DSC06928.jpg';
+        if (str.includes('133')) return 'images/units/133/02_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Living_room-DSC05753.jpg';
+        if (str.includes('135')) return 'images/units/135/02_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Living_room-DSC06964.jpg';
+        if (str.includes('136')) return 'images/units/136/living room_.JPG';
+        if (str.includes('221')) return 'images/units/221/15_4950_Sandyland_Rd_unit_221_Carpinteria_CA_93013_USA-Living_room-DSC09416.jpg';
+        if (str.includes('224')) return 'images/units/224/04_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Living_room-DSC05912.jpg';
+        if (str.includes('234')) return 'images/units/234/unit 234-1C - Copy.JPG';
+        if (str.includes('237')) return 'images/units/237/05_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Living_room-DSC04667.jpg';
+        return photo; // fall back to RMS photo if no match
+      }
+
+      return {
+        unitId,
+        name:        unitName,
+        bedrooms:    getX(u, 'numberOfBedrooms'),
+        bathrooms:   getX(u, 'numberOfBathrooms'),
+        maxPeople:   getX(u, 'maximumNumberOfPeople'),
+        sleeping:    getX(u, 'sleepingAccommodations'),
+        sectionDesc,
+        locationDesc,
+        guestRent:   baseRent.toFixed(2),
+        taxTotal:    '0',
+        secDeposit:  '0',
+        depositDue:  '0',
+        grandTotal:  baseRent.toFixed(2),
+        photo:       getLocalPhoto(unitId, unitName),
+        amenities,
+        charges:     []
+      };
+    });
+
+    renderUnits();
+    updateSummary();
+    goToStep(2);
+
+  } catch(e) {
+    console.error(e);
+    showAlert('search-alert', 'Could not reach the reservation system. Please try again or call (805) 684-3682.');
+  } finally {
+    hideLoader('search-loader');
+    btn.disabled = false; btn.textContent = 'Search Availability';
+  }
+}
+
+// ── STEP 2: RENDER UNITS ─────────────────────────────────────────────────────
+function renderUnits() {
+  const n = nights(state.arrivalDate, state.departureDate);
+  document.getElementById('results-subtitle').textContent =
+    `${state.units.length} unit${state.units.length > 1 ? 's' : ''} available · ${n} nights · ${fmtDisplay(state.arrivalDate)} → ${fmtDisplay(state.departureDate)}`;
+
+  const list = document.getElementById('units-list');
+  list.innerHTML = '';
+
+  state.units.forEach((unit, idx) => {
+    const amenityTags = unit.amenities.length
+      ? unit.amenities.map(a => `<span class="amenity-tag">${a}</span>`).join('')
+      : '';
+
+    const photoHtml = unit.photo
+      ? `<div style="height:200px; overflow:hidden; border-radius:4px 4px 0 0;">
+           <img src="${unit.photo}" alt="${unit.name}" style="width:100%; height:100%; object-fit:cover; display:block;" onerror="this.parentElement.style.display='none'" />
+         </div>`
+      : '';
+
+    const bedroomLabel = unit.bedrooms === '0' ? 'Studio' : unit.bedrooms + ' Bedroom';
+
+    const div = document.createElement('div');
+    div.className = 'unit-result';
+    div.id = 'unit-' + idx;
+    div.innerHTML = `
+      ${photoHtml}
+      <div class="unit-result-header" onclick="selectUnit(${idx})">
+        <div>
+          <div style="font-size:.7rem; letter-spacing:.15em; text-transform:uppercase; color:var(--coral); margin-bottom:.3rem;">${bedroomLabel} · ${unit.locationDesc || unit.sectionDesc || ''}</div>
+          <div class="unit-result-name">${unit.name}</div>
+          <div class="unit-result-meta">
+            ${unit.bathrooms ? unit.bathrooms + ' bath · ' : ''}Sleeps ${unit.maxPeople || '—'}
+            ${unit.sleeping && isNaN(unit.sleeping) ? ' · ' + unit.sleeping : ''}
+          </div>
+          ${amenityTags ? `<div style="display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.6rem;">${amenityTags}</div>` : ''}
+        </div>
+        <div class="unit-result-price">
+          <div class="unit-price-total">${currency(unit.guestRent)}</div>
+          <div class="unit-price-label">base rent · ${n} nights</div>
+          <div style="font-size:.7rem; color:var(--text-light); margin-top:.2rem;">+ taxes & fees at checkout</div>
+        </div>
+      </div>
+      <div class="unit-result-body">
+        <table class="charges-table">
+          <tr><td>Base Rent (${n} nights)</td><td>${currency(unit.guestRent)}</td></tr>
+          <tr><td style="color:var(--text-light); font-size:.82rem;">Taxes & fees</td><td style="color:var(--text-light); font-size:.82rem;">Calculated at confirmation</td></tr>
+          <tr><td style="color:var(--text-light); font-size:.82rem;">Security Deposit</td><td style="color:var(--text-light); font-size:.82rem;">Calculated at confirmation</td></tr>
+        </table>
+        <button class="btn btn-primary" onclick="chooseUnit(${idx})">Select This Unit →</button>
+      </div>`;
+    list.appendChild(div);
+  });
+}
+
+function selectUnit(idx) {
+  document.querySelectorAll('.unit-result').forEach(el => el.classList.remove('selected'));
+  document.getElementById('unit-' + idx).classList.add('selected');
+  state.selectedUnit = state.units[idx];
+  updateSummary();
+}
+
+function chooseUnit(idx) {
+  state.selectedUnit = state.units[idx];
+  updateSummary();
+  goToStep(3);
+}
+
+// ── SUMMARY ──────────────────────────────────────────────────────────────────
+function updateSummary() {
+  const n    = nights(state.arrivalDate, state.departureDate);
+  const unit = state.selectedUnit;
+  let html   = '';
+
+  if (state.arrivalDate)   html += `<div class="summary-row"><span class="summary-label">Check-in</span><span class="summary-value">${fmtDisplay(state.arrivalDate)}</span></div>`;
+  if (state.departureDate) html += `<div class="summary-row"><span class="summary-label">Check-out</span><span class="summary-value">${fmtDisplay(state.departureDate)}</span></div>`;
+  if (n)                   html += `<div class="summary-row"><span class="summary-label">Nights</span><span class="summary-value">${n}</span></div>`;
+  html += `<div class="summary-row"><span class="summary-label">Guests</span><span class="summary-value">${state.adults} adult${state.adults>1?'s':''}${state.children>0?' · '+state.children+' child'+(state.children>1?'ren':''):''}</span></div>`;
+
+  if (unit) {
+    html += `<div class="summary-row"><span class="summary-label">Unit</span><span class="summary-value">${unit.name}</span></div>`;
+    html += `<div class="summary-row"><span class="summary-label">Base Rent</span><span class="summary-value">${currency(unit.guestRent)}</span></div>`;
+    html += `<div class="summary-row"><span class="summary-label">Taxes & Fees</span><span class="summary-value" style="color:var(--text-light); font-size:.78rem;">At confirmation</span></div>`;
+    html += `<div class="summary-row"><span class="summary-label">Security Deposit</span><span class="summary-value" style="color:var(--text-light); font-size:.78rem;">At confirmation</span></div>`;
+    html += `<div class="summary-total"><span class="summary-total-label">Base Rent</span><span class="summary-total-value">${currency(unit.guestRent)}</span></div>`;
+    html += `<p class="summary-deposit">Final total calculated at confirmation</p>`;
+  }
+
+  document.getElementById('summary-content').innerHTML = html || '<p class="summary-empty">Select your dates to see pricing.</p>';
+}
+
+// ── STEP 3: VALIDATE & REVIEW ─────────────────────────────────────────────────
+async function reviewBooking() {
+  const required = ['firstName','lastName','email','cellPhone','addressLine1','city','guestState','zipCode','cardName'];
+  const missing  = required.filter(id => !document.getElementById(id).value.trim());
+  if (missing.length) { showAlert('guest-alert', 'Please fill in all required fields.'); document.getElementById(missing[0]).focus(); return; }
+  if (!/\S+@\S+\.\S+/.test(document.getElementById('email').value)) return showAlert('guest-alert', 'Please enter a valid email address.');
+
+  hideAlert('guest-alert');
+
+  state.guest = {
+    firstName:    document.getElementById('firstName').value.trim(),
+    lastName:     document.getElementById('lastName').value.trim(),
+    email:        document.getElementById('email').value.trim(),
+    cellPhone:    document.getElementById('cellPhone').value.trim(),
+    homePhone:    document.getElementById('homePhone').value.trim(),
+    addressLine1: document.getElementById('addressLine1').value.trim(),
+    city:         document.getElementById('city').value.trim(),
+    state:        document.getElementById('guestState').value.trim().toUpperCase(),
+    zipCode:      document.getElementById('zipCode').value.trim(),
+    note:         document.getElementById('note').value.trim()
+  };
+
+  const cardNameVal = document.getElementById('cardName').value.trim();
+
+  // Create a Stripe Payment Method from the card element — card details
+  // never leave the browser unencrypted; Stripe handles that entirely.
+  const continueBtn = document.querySelector('button[onclick="reviewBooking()"]');
+  if (continueBtn) { continueBtn.disabled = true; continueBtn.textContent = 'Validating card…'; }
+
+  const { paymentMethod, error } = await stripe.createPaymentMethod({
+    type: 'card',
+    card: cardElement,
+    billing_details: {
+      name: cardNameVal,
+      email: state.guest.email,
+      address: {
+        line1: state.guest.addressLine1,
+        city: state.guest.city,
+        state: state.guest.state,
+        postal_code: state.guest.zipCode
+      }
+    }
+  });
+
+  if (continueBtn) { continueBtn.disabled = false; continueBtn.textContent = 'Review Booking →'; }
+
+  if (error) {
+    document.getElementById('stripe-card-errors').textContent = error.message;
+    return showAlert('guest-alert', 'There was a problem with your card details. Please check and try again.');
+  }
+
+  state.paymentMethodId = paymentMethod.id;
+  state.card = { name: cardNameVal, last4: paymentMethod.card.last4, brand: paymentMethod.card.brand };
+
+  const g = state.guest, unit = state.selectedUnit;
+  const n = nights(state.arrivalDate, state.departureDate);
+
+  document.getElementById('review-content').innerHTML = `
+    <div class="review-grid">
+      <div class="review-box">
+        <div class="review-box-label">Stay Details</div>
+        <p><strong>${unit.name}</strong><br>
+        ${fmtDisplay(state.arrivalDate)} → ${fmtDisplay(state.departureDate)}<br>
+        ${n} nights · ${state.adults} adult${state.adults>1?'s':''}${state.children>0?' · '+state.children+' children':''}</p>
+      </div>
+      <div class="review-box">
+        <div class="review-box-label">Guest</div>
+        <p><strong>${g.firstName} ${g.lastName}</strong><br>${g.email}<br>${g.cellPhone}<br>${g.addressLine1}, ${g.city}, ${g.state} ${g.zipCode}</p>
+      </div>
+    </div>
+    <div class="review-box" style="margin-bottom:1.2rem;">
+      <div class="review-box-label">Payment</div>
+      <p>${state.card.brand.toUpperCase()} ending in <strong>${state.card.last4}</strong></p>
+      <p style="color:var(--coral); font-size:.82rem; margin-top:.4rem;">Deposit charged now: ${currency(unit.depositDue)} of ${currency(unit.grandTotal)} total</p>
+    </div>
+    <div class="alert alert-info visible">
+      By confirming you agree to Sunset Shores' <a href="https://sunsetshorescarp.com/rental-policies/" target="_blank" style="color:var(--ocean);">rental policies</a>. The deposit of ${currency(unit.depositDue)} will be charged immediately.
+    </div>`;
+
+  goToStep(4);
+}
+
+// ── STEP 4: SUBMIT ───────────────────────────────────────────────────────────
+async function submitBooking() {
+  const unit = state.selectedUnit, g = state.guest, c = state.card;
+
+  document.getElementById('confirm-buttons').style.display = 'none';
+  document.getElementById('booking-loader').style.display = 'flex';
+  document.querySelector('#booking-loader p').textContent = 'Charging deposit securely via Stripe…';
+  hideAlert('confirm-alert');
+
+  try {
+    // ── STEP 1: Charge the deposit through Stripe ──────────────────────────
+    const chargeRes = await fetch(CHARGE_PROXY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        paymentMethodId: state.paymentMethodId,
+        amount: Math.round(parseFloat(unit.depositDue || unit.guestRent || 0) * 100), // cents
+        currency: 'usd',
+        receiptEmail: g.email,
+        description: `Sunset Shores deposit — ${unit.name}, ${fmtDate(state.arrivalDate)} to ${fmtDate(state.departureDate)}`
+      })
+    });
+
+    const chargeResult = await chargeRes.json();
+
+    if (!chargeRes.ok || !chargeResult.success) {
+      throw new Error(chargeResult.message || 'Your card could not be charged. Please check your details or try a different card.');
+    }
+
+    // ── STEP 2: Send the reservation to RMS, marked as already paid ────────
+    document.querySelector('#booking-loader p').textContent = 'Payment successful — submitting your reservation…';
+
+    let chargeParams = '';
+    (unit.charges || []).forEach(ch => {
+      chargeParams += `&charge.id=${encodeURIComponent(ch.id)}&charge.amount=${ch.amount}&charge.enabled=${ch.enabled || 'true'}`;
+    });
+
+    const p = new URLSearchParams({
+      'reservation.statusCode':       'A',
+      'reservation.arrival':          fmtDate(state.arrivalDate),
+      'reservation.departure':        fmtDate(state.departureDate),
+      'reservation.unitId':           unit.unitId,
+      'reservation.numberOfAdults':   state.adults,
+      'reservation.numberOfChildren': state.children,
+      'reservation.firstName':        g.firstName,
+      'reservation.lastName':         g.lastName,
+      'reservation.addressLine1':     g.addressLine1,
+      'reservation.city':             g.city,
+      'reservation.state':            g.state,
+      'reservation.zipCode':          g.zipCode,
+      'reservation.cellPhone':        g.cellPhone.replace(/\D/g, ''),
+      'reservation.homePhone':        g.homePhone.replace(/\D/g, ''),
+      'reservation.email':            g.email,
+      'reservation.notePrefix':       'Guest Comment:',
+      'reservation.note':             (g.note ? g.note + ' ' : '') + `[Paid via Stripe — charge ${chargeResult.chargeId}]`,
+      'reservation.guestRent':        unit.guestRent  || '0',
+      'reservation.taxTotal':         unit.taxTotal   || '0',
+      'reservation.tax1':             '0.0',
+      'reservation.tax2':             unit.taxTotal   || '0',
+      'reservation.tax3':             '0.0',
+      'reservation.securityDeposit':  unit.secDeposit || '0',
+      'reservation.grandTotal':       unit.grandTotal || '0',
+      'reservation.depositDue':       unit.depositDue || '0',
+      'reservation.depositType':      'CREDITCARD',
+      'reservation.operator':         'WEB'
+      // Note: no raw card fields sent to RMS — payment was already captured via Stripe above.
+    });
+
+    const bookPath = `/unit/book?${p.toString()}${chargeParams}`;
+    const xml      = await rmsGet(bookPath);
+    const booked   = getX(xml, 'booked');
+    const resId    = getX(xml, 'reservationId');
+    const msg      = getX(xml, 'message');
+
+    if (booked === 'true') {
+      document.getElementById('confirm-res-id').textContent = `Reservation #${resId}`;
+      document.getElementById('confirm-details').innerHTML = `
+        <p style="font-size:.88rem; line-height:1.9; color:var(--text-mid); font-weight:300;">
+          <strong style="color:var(--ocean-deep);">Unit:</strong> ${unit.name}<br>
+          <strong style="color:var(--ocean-deep);">Check-in:</strong> ${fmtDisplay(state.arrivalDate)}<br>
+          <strong style="color:var(--ocean-deep);">Check-out:</strong> ${fmtDisplay(state.departureDate)}<br>
+          <strong style="color:var(--ocean-deep);">Guest:</strong> ${g.firstName} ${g.lastName}<br>
+          <strong style="color:var(--ocean-deep);">Confirmation sent to:</strong> ${g.email}<br>
+          <strong style="color:var(--ocean-deep);">Payment:</strong> ${currency(unit.depositDue || unit.guestRent)} charged to ${c.brand.toUpperCase()} ending in ${c.last4}
+        </p>`;
+      goToStep(5);
+    } else {
+      throw new Error(msg || 'Booking failed. Please check your details and try again.');
+    }
+
+  } catch(e) {
+    console.error(e);
+    showAlert('confirm-alert', e.message || 'An error occurred. Please call (805) 684-3682 to complete your reservation.');
+    document.getElementById('confirm-buttons').style.display = 'flex';
+  } finally {
+    document.getElementById('booking-loader').style.display = 'none';
+  }
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+const today = new Date().toISOString().split('T')[0];
+document.getElementById('arrivalDate').min = today;
+document.getElementById('departureDate').min = today;
+document.getElementById('arrivalDate').addEventListener('change', function() {
+  document.getElementById('departureDate').min = this.value;
+  const dep = document.getElementById('departureDate');
+  if (!dep.value || dep.value <= this.value) {
+    const d = new Date(this.value + 'T12:00:00');
+    d.setDate(d.getDate() + 7);
+    dep.value = d.toISOString().split('T')[0];
+  }
+});
+</script>
+</body>
+</html>

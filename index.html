@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sunset Shores — Carpinteria, CA</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --sand: #F5EDD8; --sand-light: #FBF7EE; --sand-mid: #E8D9B8;
+    --ocean: #1C4F6B; --ocean-deep: #0F2F42; --ocean-mid: #2E7A9E; --ocean-light: #A8CDD9;
+    --coral: #D4614B; --sunset: #E8935A; --white: #FFFFFF;
+    --text-dark: #1A1A1A; --text-mid: #4A4A4A; --text-light: #7A7A7A;
+    --font-serif: 'Cormorant Garamond', Georgia, serif; --font-sans: 'DM Sans', sans-serif;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--font-sans); background: var(--sand-light); color: var(--text-dark); overflow-x: hidden; }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 3rem;
+    background: transparent; transition: background .4s, box-shadow .4s;
+  }
+  nav.scrolled { background: rgba(15,47,66,.96); backdrop-filter: blur(12px); box-shadow: 0 2px 24px rgba(0,0,0,.2); }
+  .nav-logo { font-family: var(--font-serif); font-size: 1.5rem; font-weight: 300; color: var(--white); letter-spacing: .04em; text-decoration: none; display: flex; flex-direction: column; line-height: 1.1; }
+  .nav-logo span { font-size: .65rem; letter-spacing: .25em; font-family: var(--font-sans); font-weight: 300; text-transform: uppercase; color: var(--ocean-light); margin-top: 2px; }
+  .nav-links { display: flex; gap: 2.2rem; list-style: none; align-items: center; }
+  .nav-links a { color: rgba(255,255,255,.85); text-decoration: none; font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 400; transition: color .2s; }
+  .nav-links a:hover { color: var(--white); }
+  .nav-cta { background: var(--coral) !important; color: var(--white) !important; padding: .6rem 1.4rem !important; border-radius: 2px !important; letter-spacing: .1em !important; font-weight: 500 !important; transition: background .2s !important; }
+  .nav-cta:hover { background: #bf4f3b !important; }
+
+  .hero { position: relative; height: 100vh; min-height: 700px; display: flex; align-items: center; overflow: hidden; background: var(--ocean-deep); }
+  .hero-bg {
+    position: absolute; inset: 0; overflow: hidden;
+  }
+  .hero-bg::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(to bottom right, rgba(15,47,66,.55) 0%, rgba(212,97,75,.15) 100%);
+    z-index: 1;
+  }
+  .hero-video {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; object-position: center; z-index: 0;
+  }
+  @keyframes heroZoom { from { transform: scale(1.04); } to { transform: scale(1.10); } }
+  .hero-overlay { position: absolute; bottom: 0; left: 0; right: 0; height: 220px; background: linear-gradient(to top, var(--sand-light) 0%, transparent 100%); z-index: 2; }
+  .hero-content { position: relative; z-index: 3; max-width: 780px; padding: 0 3rem; animation: fadeUp 1.1s ease both; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(32px); } to { opacity: 1; transform: translateY(0); } }
+  .hero-eyebrow { font-size: .72rem; letter-spacing: .3em; text-transform: uppercase; color: var(--ocean-light); margin-bottom: 1.2rem; display: flex; align-items: center; gap: .75rem; }
+  .hero-eyebrow::before { content: ''; display: inline-block; width: 32px; height: 1px; background: var(--ocean-light); }
+  .hero h1 { font-family: var(--font-serif); font-size: clamp(3rem,6vw,5.5rem); font-weight: 300; color: var(--white); line-height: 1.08; margin-bottom: 1.4rem; }
+  .hero h1 em { font-style: italic; color: #F4B07A; }
+  .hero p { color: rgba(255,255,255,.82); font-size: 1.05rem; max-width: 500px; line-height: 1.75; font-weight: 300; margin-bottom: 2.4rem; }
+  .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+  .btn-primary { background: var(--coral); color: var(--white); padding: .9rem 2.2rem; font-size: .82rem; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; border: none; cursor: pointer; text-decoration: none; border-radius: 2px; transition: background .2s, transform .15s, box-shadow .2s; display: inline-block; }
+  .btn-primary:hover { background: #bf4f3b; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(212,97,75,.4); }
+  .btn-ghost { color: rgba(255,255,255,.9); padding: .9rem 2.2rem; font-size: .82rem; font-weight: 400; letter-spacing: .08em; text-transform: uppercase; border: 1px solid rgba(255,255,255,.4); background: transparent; cursor: pointer; text-decoration: none; border-radius: 2px; transition: border-color .2s, background .2s; display: inline-block; }
+  .btn-ghost:hover { border-color: rgba(255,255,255,.8); background: rgba(255,255,255,.08); }
+  .hero-scroll { position: absolute; bottom: 2.5rem; right: 3rem; z-index: 4; display: flex; flex-direction: column; align-items: center; gap: .5rem; color: rgba(255,255,255,.5); font-size: .65rem; letter-spacing: .2em; text-transform: uppercase; animation: fadeUp 1.4s .6s ease both; }
+  .hero-scroll-line { width: 1px; height: 48px; background: linear-gradient(to bottom, rgba(255,255,255,.5), transparent); animation: scrollPulse 2s ease-in-out infinite; }
+  @keyframes scrollPulse { 0%,100%{opacity:.5;}50%{opacity:1;} }
+
+  .booking-strip { background: var(--ocean-deep); padding: 2.5rem 3rem; display: flex; align-items: flex-end; gap: 1.5rem; flex-wrap: wrap; justify-content: center; }
+  .booking-field { display: flex; flex-direction: column; gap: .4rem; }
+  .booking-field label { font-size: .65rem; letter-spacing: .2em; text-transform: uppercase; color: var(--ocean-light); font-weight: 400; }
+  .booking-field select, .booking-field input { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.15); color: var(--white); padding: .7rem 1rem; font-size: .9rem; font-family: var(--font-sans); border-radius: 2px; min-width: 180px; outline: none; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23A8CDD9' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; padding-right: 2.5rem; }
+  .booking-field input[type="date"] { background-image: none; padding-right: 1rem; color-scheme: dark; }
+  .booking-field select option { background: var(--ocean-deep); }
+
+  section { position: relative; }
+  .section-inner { max-width: 1200px; margin: 0 auto; padding: 0 3rem; }
+  .section-label { font-size: .68rem; letter-spacing: .3em; text-transform: uppercase; color: var(--coral); font-weight: 400; margin-bottom: .8rem; display: flex; align-items: center; gap: .75rem; }
+  .section-label::before { content: ''; display: inline-block; width: 24px; height: 1px; background: var(--coral); }
+  .section-heading { font-family: var(--font-serif); font-size: clamp(2rem,3.5vw,3rem); font-weight: 300; line-height: 1.15; color: var(--ocean-deep); margin-bottom: 1.2rem; }
+  .section-heading em { font-style: italic; color: var(--ocean-mid); }
+
+  .intro { padding: 7rem 0 5rem; background: var(--sand-light); }
+  .intro-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; }
+  .intro-text p { color: var(--text-mid); line-height: 1.85; font-size: .97rem; margin-bottom: 1.2rem; font-weight: 300; }
+  .intro-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--sand-mid); border: 1px solid var(--sand-mid); overflow: hidden; border-radius: 4px; margin-top: 2.5rem; }
+  .stat-box { background: var(--sand-light); padding: 1.8rem 1.5rem; text-align: center; }
+  .stat-number { font-family: var(--font-serif); font-size: 2.8rem; font-weight: 300; color: var(--ocean); line-height: 1; margin-bottom: .3rem; }
+  .stat-label { font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--text-light); font-weight: 400; }
+  .intro-image-stack { position: relative; height: 520px; }
+  .intro-img-main { position: absolute; inset: 0; right: 60px; bottom: 60px; border-radius: 4px; background: url('images/exterior-sign.jpg') center/cover; }
+  .intro-img-accent { position: absolute; width: 240px; height: 280px; right: 0; bottom: 0; background: url('images/aerial-grounds.jpg') center/cover; border-radius: 4px; border: 6px solid var(--sand-light); box-shadow: 0 12px 40px rgba(0,0,0,.15); }
+
+  .features { background: var(--ocean-deep); padding: 6rem 0; }
+  .features .section-heading { color: var(--white); }
+  .features .section-label { color: var(--ocean-light); }
+  .features .section-label::before { background: var(--ocean-light); }
+  .features-grid { display: grid; grid-template-columns: repeat(3,1fr); margin-top: 3.5rem; border: 1px solid rgba(255,255,255,.08); border-radius: 4px; overflow: hidden; }
+  .feature-card { padding: 2.5rem 2rem; border-right: 1px solid rgba(255,255,255,.08); transition: background .3s; }
+  .feature-card:last-child { border-right: none; }
+  .feature-card:hover { background: rgba(255,255,255,.04); }
+  .feature-icon { width: 44px; height: 44px; border-radius: 50%; background: rgba(168,205,217,.12); display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; }
+  .feature-icon svg { width: 20px; height: 20px; stroke: var(--ocean-light); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .feature-card h3 { font-family: var(--font-serif); font-size: 1.3rem; font-weight: 400; color: var(--white); margin-bottom: .8rem; }
+  .feature-card p { font-size: .88rem; color: rgba(255,255,255,.55); line-height: 1.75; font-weight: 300; }
+
+  .gallery { padding: 6rem 0; background: var(--sand-light); }
+  .gallery-intro { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem; flex-wrap: wrap; gap: 1.5rem; }
+  .gallery-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; grid-template-rows: 280px 280px; gap: 12px; }
+  .gallery-cell { overflow: hidden; border-radius: 4px; cursor: pointer; position: relative; }
+  .gallery-cell::after { content: ''; position: absolute; inset: 0; background: rgba(15,47,66,0); transition: background .3s; }
+  .gallery-cell:hover::after { background: rgba(15,47,66,.25); }
+  .gallery-cell img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; display: block; }
+  .gallery-cell:hover img { transform: scale(1.06); }
+  .gallery-cell:first-child { grid-row: 1 / 3; }
+
+  .units { background: var(--sand); padding: 6rem 0; }
+  .units-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem; flex-wrap: wrap; gap: 1.5rem; }
+  .units-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; }
+  .unit-card { background: var(--white); border-radius: 4px; overflow: hidden; transition: transform .3s, box-shadow .3s; border: 1px solid var(--sand-mid); }
+  .unit-card:hover { transform: translateY(-4px); box-shadow: 0 20px 48px rgba(15,47,66,.12); }
+  .unit-img { height: 220px; background-size: cover; background-position: center; position: relative; }
+  .unit-badge { position: absolute; top: 1rem; left: 1rem; background: var(--ocean-deep); color: var(--white); font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; padding: .3rem .7rem; border-radius: 2px; }
+  .unit-body { padding: 1.5rem; }
+  .unit-type { font-size: .7rem; letter-spacing: .18em; text-transform: uppercase; color: var(--coral); margin-bottom: .4rem; }
+  .unit-name { font-family: var(--font-serif); font-size: 1.25rem; font-weight: 400; color: var(--ocean-deep); margin-bottom: .7rem; }
+  .unit-desc { font-size: .84rem; color: var(--text-mid); line-height: 1.65; font-weight: 300; margin-bottom: 1.2rem; }
+  .unit-amenities { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.4rem; }
+  .amenity-tag { background: var(--sand-light); border: 1px solid var(--sand-mid); font-size: .68rem; padding: .25rem .6rem; border-radius: 2px; color: var(--text-mid); }
+  .unit-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 1rem; border-top: 1px solid var(--sand-mid); }
+  .unit-price { font-family: var(--font-serif); font-size: 1.4rem; font-weight: 400; color: var(--ocean); }
+  .unit-price span { font-family: var(--font-sans); font-size: .72rem; color: var(--text-light); font-weight: 300; }
+  .unit-link { font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; color: var(--coral); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: .4rem; transition: color .2s; }
+  .unit-link:hover { color: #bf4f3b; }
+  .unit-link svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; transition: transform .2s; }
+  .unit-link:hover svg { transform: translateX(3px); }
+
+  .pool-section { position: relative; height: 480px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+  .pool-bg { position: absolute; inset: 0; background: url('images/pool.jpg') center/cover; }
+  .pool-overlay { position: absolute; inset: 0; background: rgba(15,47,66,.55); }
+  .pool-content { position: relative; z-index: 2; text-align: center; max-width: 600px; padding: 0 2rem; }
+  .pool-content h2 { font-family: var(--font-serif); font-size: 3rem; font-weight: 300; color: var(--white); line-height: 1.15; margin-bottom: 1rem; }
+  .pool-content h2 em { font-style: italic; color: #F4B07A; }
+  .pool-content p { color: rgba(255,255,255,.8); font-size: 1rem; line-height: 1.75; font-weight: 300; margin-bottom: 2rem; }
+
+  .photo-strip { display: flex; height: 260px; overflow: hidden; }
+  .photo-strip-item { flex: 1; overflow: hidden; }
+  .photo-strip-item img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; display: block; }
+  .photo-strip-item:hover img { transform: scale(1.08); }
+
+  .testimonials { background: var(--ocean); padding: 6rem 0; }
+  .testimonials .section-heading { color: var(--white); }
+  .testimonials .section-label { color: var(--ocean-light); }
+  .testimonials .section-label::before { background: var(--ocean-light); }
+  .testimonials-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; margin-top: 3rem; }
+  .testimonial-card { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12); border-radius: 4px; padding: 2rem; transition: background .3s; }
+  .testimonial-card:hover { background: rgba(255,255,255,.11); }
+  .testimonial-stars { display: flex; gap: 3px; margin-bottom: 1.2rem; }
+  .star { width: 14px; height: 14px; background: var(--sunset); clip-path: polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%); }
+  .testimonial-text { font-family: var(--font-serif); font-size: 1.05rem; font-weight: 300; font-style: italic; color: rgba(255,255,255,.88); line-height: 1.75; margin-bottom: 1.5rem; }
+  .testimonial-author { font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ocean-light); }
+  .testimonial-date { font-size: .72rem; color: rgba(255,255,255,.35); margin-top: .2rem; }
+
+  .location { padding: 6rem 0; background: var(--sand-light); }
+  .location-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start; }
+  .location-map { background: var(--sand-mid); border-radius: 4px; overflow: hidden; height: 420px; }
+  .location-map iframe { width: 100%; height: 100%; border: none; }
+  .location-highlights { margin-top: 2.5rem; }
+  .location-item { display: flex; align-items: flex-start; gap: 1rem; padding: 1.2rem 0; border-bottom: 1px solid var(--sand-mid); }
+  .location-item:last-child { border-bottom: none; }
+  .location-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--coral); margin-top: 6px; flex-shrink: 0; }
+  .location-item-text strong { display: block; font-size: .88rem; font-weight: 500; color: var(--ocean-deep); margin-bottom: .2rem; }
+  .location-item-text span { font-size: .82rem; color: var(--text-light); font-weight: 300; }
+
+  .contact-strip { background: var(--sand); padding: 4rem 3rem; display: flex; justify-content: center; align-items: center; gap: 4rem; flex-wrap: wrap; text-align: center; border-top: 1px solid var(--sand-mid); }
+  .contact-item { display: flex; flex-direction: column; gap: .3rem; }
+  .contact-label { font-size: .65rem; letter-spacing: .2em; text-transform: uppercase; color: var(--text-light); }
+  .contact-value { font-family: var(--font-serif); font-size: 1.2rem; font-weight: 400; color: var(--ocean-deep); text-decoration: none; transition: color .2s; }
+  .contact-value:hover { color: var(--coral); }
+
+  footer { background: var(--ocean-deep); color: rgba(255,255,255,.55); padding: 3rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem; }
+  .footer-logo { font-family: var(--font-serif); font-size: 1.3rem; font-weight: 300; color: var(--white); letter-spacing: .04em; }
+  .footer-logo span { display: block; font-family: var(--font-sans); font-size: .62rem; letter-spacing: .22em; text-transform: uppercase; color: var(--ocean-light); margin-top: 3px; }
+  .footer-links { display: flex; gap: 1.8rem; list-style: none; flex-wrap: wrap; justify-content: center; }
+  .footer-links a { color: rgba(255,255,255,.45); text-decoration: none; font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; transition: color .2s; }
+  .footer-links a:hover { color: var(--white); }
+  .footer-copy { font-size: .75rem; color: rgba(255,255,255,.25); }
+
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .75s ease, transform .75s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: .1s; }
+  .reveal-delay-2 { transition-delay: .2s; }
+  .reveal-delay-3 { transition-delay: .3s; }
+
+  /* ── DESKTOP RESET ── */
+  @media (min-width: 641px) {
+    .nav-links { display: flex !important; transform: none !important; position: static !important; flex-direction: row !important; background: transparent !important; box-shadow: none !important; padding: 0 !important; width: auto !important; gap: 2.2rem !important; }
+    .nav-hamburger { display: none !important; }
+    .nav-overlay { display: none !important; }
+  }
+
+  /* ── MOBILE HAMBURGER ── */
+  .nav-hamburger {
+    display: none; flex-direction: column; gap: 5px; cursor: pointer;
+    background: none; border: none; padding: .5rem; z-index: 200;
+  }
+  .nav-hamburger span {
+    display: block; width: 24px; height: 2px; background: var(--white);
+    border-radius: 2px; transition: transform .3s, opacity .3s;
+  }
+  .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .nav-hamburger.open span:nth-child(2) { opacity: 0; }
+  .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* ── TABLET (≤ 900px) ── */
+  @media (max-width: 900px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { gap: 1.4rem; }
+    .intro-grid { grid-template-columns: 1fr; gap: 3rem; }
+    .intro-image-stack { height: 360px; }
+    .intro-img-accent { width: 160px; height: 200px; }
+    .features-grid { grid-template-columns: repeat(2, 1fr); }
+    .feature-card:nth-child(2) { border-right: none; }
+    .feature-card:nth-child(odd) { border-right: 1px solid rgba(255,255,255,.08); }
+    .feature-card:nth-child(5), .feature-card:nth-child(6) { border-top: 1px solid rgba(255,255,255,.08); }
+    .gallery-grid { grid-template-columns: 1fr 1fr; grid-template-rows: 220px 220px 220px; }
+    .gallery-cell:first-child { grid-row: 1 / 2; grid-column: 1 / 3; }
+    .units-grid { grid-template-columns: repeat(2, 1fr); }
+    .testimonials-grid { grid-template-columns: 1fr 1fr; }
+    .location-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+    .contact-strip { gap: 2rem; padding: 3rem 2rem; }
+    footer { padding: 2rem; }
+    .footer-links { gap: 1.2rem; }
+  }
+
+  /* ── MOBILE (≤ 640px) ── */
+  @media (max-width: 640px) {
+    /* Nav — hamburger menu */
+    nav { padding: 1rem 1.2rem; }
+    .nav-hamburger { display: flex; }
+    .nav-links {
+      position: fixed; top: 0; right: 0; bottom: 0; width: 75vw; max-width: 300px;
+      background: var(--ocean-deep); flex-direction: column; gap: 0;
+      padding: 5rem 2rem 2rem; transform: translateX(100%);
+      transition: transform .35s ease; z-index: 150; box-shadow: -8px 0 32px rgba(0,0,0,.3);
+    }
+    .nav-links.open { transform: translateX(0); }
+    .nav-links li { border-bottom: 1px solid rgba(255,255,255,.08); }
+    .nav-links a { display: block; padding: 1rem 0; font-size: .9rem; letter-spacing: .08em; }
+    .nav-cta {
+      margin-top: 1rem; display: block; text-align: center;
+      padding: .9rem 1.4rem !important; border-radius: 2px !important;
+    }
+    .nav-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 140;
+    }
+    .nav-overlay.open { display: block; }
+
+    /* Hero */
+    .hero { min-height: 600px; }
+    .hero-content { padding: 0 1.5rem; }
+    .hero-scroll { display: none; }
+    .hero-actions { flex-direction: column; align-items: flex-start; }
+    .hero-actions .btn-primary, .hero-actions .btn-ghost { width: 100%; text-align: center; }
+
+    /* Booking strip */
+    .booking-strip { padding: 1.8rem 1.2rem; gap: 1rem; }
+    .booking-field select, .booking-field input { min-width: 100%; }
+    .booking-field { width: 100%; }
+    .booking-strip .btn-primary { width: 100%; text-align: center; }
+
+    /* Sections */
+    .section-inner { padding: 0 1.2rem; }
+    .intro { padding: 4rem 0 3rem; }
+    .intro-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .intro-image-stack { height: 260px; }
+    .intro-img-main { right: 40px; bottom: 40px; }
+    .intro-img-accent { width: 130px; height: 160px; border-width: 4px; }
+    .intro-stats { grid-template-columns: 1fr 1fr; }
+
+    /* Features */
+    .features { padding: 4rem 0; }
+    .features-grid { grid-template-columns: 1fr; border: none; gap: 1px; background: rgba(255,255,255,.08); }
+    .feature-card { border-right: none !important; border-top: none !important; }
+
+    /* Gallery */
+    .gallery { padding: 4rem 0; }
+    .gallery-intro { flex-direction: column; align-items: flex-start; }
+    .gallery-grid {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 180px 180px 180px;
+    }
+    .gallery-cell:first-child { grid-row: 1 / 2; grid-column: 1 / 3; }
+
+    /* Units */
+    .units { padding: 4rem 0; }
+    .units-header { flex-direction: column; align-items: flex-start; }
+    .units-grid { grid-template-columns: 1fr; }
+
+    /* Pool section */
+    .pool-section { height: 380px; }
+    .pool-content h2 { font-size: 2rem; }
+
+    /* Photo strip */
+    .photo-strip { height: 180px; }
+    .photo-strip-item:nth-child(4),
+    .photo-strip-item:nth-child(5) { display: none; }
+
+    /* Testimonials */
+    .testimonials { padding: 4rem 0; }
+    .testimonials-grid { grid-template-columns: 1fr; }
+
+    /* Location */
+    .location { padding: 4rem 0; }
+    .location-map { height: 280px; }
+
+    /* Contact strip */
+    .contact-strip {
+      flex-direction: column; gap: 1.5rem; padding: 2.5rem 1.5rem; text-align: center;
+    }
+    .contact-strip > div[style] { display: none; } /* hide dividers */
+
+    /* Footer */
+    footer { flex-direction: column; align-items: center; text-align: center; padding: 2rem 1.5rem; }
+    .footer-links { justify-content: center; gap: 1rem; }
+
+    /* Buttons full-width on mobile */
+    .btn-primary, .btn-ghost { padding: .85rem 1.6rem; font-size: .8rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="nav-overlay" id="navOverlay"></div>
+<nav id="mainNav">
+  <a href="#" class="nav-logo">Sunset Shores <span>Carpinteria, California</span></a>
+  <button class="nav-hamburger" id="navHamburger" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#gallery" class="nav-close">Gallery</a></li>
+    <li><a href="#units" class="nav-close">Rentals</a></li>
+    <li><a href="#location" class="nav-close">Location</a></li>
+    <li><a href="#contact" class="nav-close">Contact</a></li>
+    <li><a href="booking.html" class="nav-cta">Book Now</a></li>
+  </ul>
+</nav>
+
+<!-- HERO — real outdoor/ocean photo from #237 listing -->
+<section class="hero">
+  <div class="hero-bg">
+    <video class="hero-video" autoplay muted loop playsinline preload="auto" poster="images/exterior-sign.jpg">
+      <source src="images/hero-video-compressed.mp4" type="video/mp4">
+    </video>
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">World's Safest Beach · Carpinteria, CA</p>
+    <h1>Where the Pacific<br>meets <em>pure rest</em></h1>
+    <p>Weekly and monthly condominium rentals steps from the water in charming Carpinteria — heated pool, ocean views, and sunsets worth staying for.</p>
+    <div class="hero-actions">
+      <a href="booking.html" class="btn-primary">Check Availability</a>
+      <a href="#units" class="btn-ghost">View Rentals</a>
+    </div>
+  </div>
+  <div class="hero-scroll"><div class="hero-scroll-line"></div>Scroll</div>
+</section>
+
+<div class="booking-strip">
+  <div class="booking-field"><label>Bedrooms</label><select><option>Any</option><option>1 Bedroom</option><option>2 Bedrooms</option></select></div>
+  <div class="booking-field"><label>Check-In</label><input type="date" /></div>
+  <div class="booking-field"><label>Check-Out</label><input type="date" /></div>
+  <div class="booking-field"><label>&nbsp;</label><a href="booking.html" class="btn-primary" style="white-space:nowrap;">Search Availability</a></div>
+</div>
+
+<section class="intro">
+  <div class="section-inner">
+    <div class="intro-grid">
+      <div class="intro-text">
+        <p class="section-label reveal">About Sunset Shores</p>
+        <h2 class="section-heading reveal">A coastal retreat<br>like no <em>other</em></h2>
+        <p class="reveal reveal-delay-1">Sunset Shores is a collection of fully furnished condominiums perched at the edge of Carpinteria's beloved state beach. Every unit comes stocked with everything you need to feel completely at home the moment you arrive.</p>
+        <p class="reveal reveal-delay-2">Swim year-round in the heated pool, unwind in the whirlpool spa, or take in sweeping views of the Santa Ynez Mountains with the Pacific at your back. The Amtrak station is two blocks away; downtown shops, restaurants, and a weekly farmers market are a short stroll.</p>
+        <div class="intro-stats reveal reveal-delay-3">
+          <div class="stat-box"><div class="stat-number">24+</div><div class="stat-label">Condo Units</div></div>
+          <div class="stat-box"><div class="stat-number">1 mi</div><div class="stat-label">Beach Walk</div></div>
+          <div class="stat-box"><div class="stat-number">2 blk</div><div class="stat-label">To Amtrak</div></div>
+          <div class="stat-box"><div class="stat-number">365</div><div class="stat-label">Days of Sun</div></div>
+        </div>
+      </div>
+      <!-- Real interior photo of unit #115 as main, poolside as accent -->
+      <div class="intro-image-stack reveal reveal-delay-2">
+        <div class="intro-img-main"></div>
+        <div class="intro-img-accent"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="section-inner">
+    <p class="section-label reveal">What's Included</p>
+    <h2 class="section-heading reveal">Everything handled,<br>nothing left <em>wanting</em></h2>
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+        <h3>Fully Furnished</h3>
+        <p>Every unit arrives move-in ready — full kitchen equipment, linens, towels, and all the essentials covered.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+        <h3>High-Speed Internet & Cable</h3>
+        <p>Free Wi-Fi and 200-channel cable TV in every unit — work remotely or unwind in style.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.72 10a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.64 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.64a16 16 0 0 0 6.29 6.29l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+        <h3>On-Site Management</h3>
+        <p>Our resident team is on-site and reachable by phone — quick help, local tips, genuine hospitality.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div>
+        <h3>Heated Pool & Spa</h3>
+        <p>Year-round heated pool and whirlpool spa with spacious courtyards for morning coffee and golden-hour relaxing.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-icon"><svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
+        <h3>EV Charging On-Site</h3>
+        <p>Electric vehicle charging stations available. Leave the car, take the bike — or charge up and explore the coast.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-3">
+        <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <h3>Gated & Secure</h3>
+        <p>Gated parking lot and secure access throughout — so you can relax completely from the moment you arrive.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY with real CDN images -->
+<section class="gallery" id="gallery">
+  <div class="section-inner">
+    <div class="gallery-intro">
+      <div>
+        <p class="section-label reveal">Photo Gallery</p>
+        <h2 class="section-heading reveal">Life at<br>Sunset Shores</h2>
+      </div>
+      <a href="booking.html" class="btn-primary reveal" style="background:var(--ocean);white-space:nowrap;">Book a Stay</a>
+    </div>
+    <div class="gallery-grid reveal">
+      <div class="gallery-cell">
+        <img src="images/aerial-pool-beach.jpg" alt="Aerial view of Sunset Shores">
+      </div>
+      <div class="gallery-cell">
+        <img src="images/pool.jpg" alt="Heated pool">
+      </div>
+      <div class="gallery-cell">
+        <img src="images/ocean-view-patio.jpg" alt="Ocean view patio">
+      </div>
+      <div class="gallery-cell">
+        <img src="images/spa-hot-tub.jpg" alt="Hot tub and spa">
+      </div>
+      <div class="gallery-cell">
+        <img src="images/courtyard-walk.jpg" alt="Courtyard walkway">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- UNITS — random 3 picked from all 9 units on every page load -->
+<section class="units" id="units">
+  <div class="section-inner">
+    <div class="units-header">
+      <div>
+        <p class="section-label reveal">Available Rentals</p>
+        <h2 class="section-heading reveal">Find your<br>perfect <em>unit</em></h2>
+      </div>
+      <a href="rates.html" class="btn-primary reveal" style="background:var(--ocean);">View All Rates</a>
+    </div>
+    <div class="units-grid" id="units-grid"></div>
+  </div>
+</section>
+
+<script>
+(function() {
+  const ALL_UNITS = [
+    {
+      num: '128', badge: 'Ground Floor', type: '1-Bedroom · Sleeps 4', name: 'Tropical Hideaway #128',
+      desc: 'Hawaiian-themed ground-floor unit with tropical décor, walk-in shower with rain head, and direct courtyard access.',
+      tags: ['Full Kitchen','Walk-in Shower','Wi-Fi','Pool Access'],
+      price: 'From $165',
+      photos: [
+        'images/units/128/02_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Living_room-DSC05129.jpg',
+        'images/units/128/04_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Kitchen-DSC05138.jpg',
+        'images/units/128/07_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bedroom-DSC05159.jpg',
+        'images/units/128/09_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bathroom-DSC05153.jpg'
+      ]
+    },
+    {
+      num: '131', badge: 'Courtyard View', type: '1-Bedroom · Sleeps 4', name: 'Courtyard Condo #131',
+      desc: 'Comfortable condo overlooking the lush courtyard with full kitchen, cozy living room and easy pool access.',
+      tags: ['Full Kitchen','Courtyard View','Cable TV','Heated Pool'],
+      price: 'From $165',
+      photos: [
+        'images/units/131/04_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Living_room-DSC06928.jpg',
+        'images/units/131/05_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Kitchen-DSC06934.jpg',
+        'images/units/131/08_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bedroom-DSC06949.jpg',
+        'images/units/131/09_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bathroom-DSC06952.jpg'
+      ]
+    },
+    {
+      num: '133', badge: 'Pool Side', type: '1-Bedroom · Sleeps 4', name: 'Poolside Retreat #133',
+      desc: 'Bright and airy unit steps from the heated pool. Full kitchen, comfortable bedroom and relaxed coastal style throughout.',
+      tags: ['Full Kitchen','Pool Steps Away','Wi-Fi','Hot Tub'],
+      price: 'From $170',
+      photos: [
+        'images/units/133/02_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Living_room-DSC05753.jpg',
+        'images/units/133/05_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Kitchen-DSC05780.jpg',
+        'images/units/133/07_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bedroom-DSC05771.jpg',
+        'images/units/133/09_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bathroom-DSC05762.jpg'
+      ]
+    },
+    {
+      num: '135', badge: 'Upper Floor', type: '1-Bedroom · Sleeps 4', name: 'Sunset Suite #135',
+      desc: 'Upper-floor unit with elevated views, full kitchen and a peaceful coastal atmosphere perfect for couples or small families.',
+      tags: ['Full Kitchen','Upper Floor','Wi-Fi','Pool Access'],
+      price: 'From $175',
+      photos: [
+        'images/units/135/02_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Living_room-DSC06964.jpg',
+        'images/units/135/05_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Kitchen-DSC06976.jpg',
+        'images/units/135/07_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bedroom-DSC06988.jpg',
+        'images/units/135/09_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bathroom-DSC06994.jpg'
+      ]
+    },
+    {
+      num: '136', badge: 'Private Patio', type: '1-Bedroom · Sleeps 4', name: 'Garden Patio #136',
+      desc: 'Charming unit with a private brick patio, BBQ grill and beautiful garden views — perfect for evening dining outdoors.',
+      tags: ['Full Kitchen','Private Patio','BBQ Grill','Pool Access'],
+      price: 'From $175',
+      photos: [
+        'images/units/136/living room_.JPG',
+        'images/units/136/136 kitchen_.JPG',
+        'images/units/136/136 bed_.JPG',
+        'images/units/136/136 bath.jpeg'
+      ]
+    },
+    {
+      num: '221', badge: 'Family Size', type: '1-Bedroom · Sleeps 4', name: 'Coastal Retreat #221',
+      desc: 'Bright coastal unit with beamed ceilings, updated kitchen and a private ocean-view balcony. Walk across the street to the beach in under a minute.',
+      tags: ['Full Kitchen','Ocean Balcony','Cable TV','Hot Tub'],
+      price: 'From $200',
+      photos: [
+        'images/units/221/15_4950_Sandyland_Rd_unit_221_Carpinteria_CA_93013_USA-Living_room-DSC09416.jpg',
+        'images/units/221/18_4950_Sandyland_Rd_unit_221_Carpinteria_CA_93013_USA-Kitchen-DSC09422.jpg',
+        'images/units/221/25_4950_Sandyland_Rd_unit_221_Carpinteria_CA_93013_USA-Bedroom-DSC09431.jpg',
+        'images/units/221/29_4950_Sandyland_Rd_unit_221_Carpinteria_CA_93013_USA-Bathroom-DSC09437.jpg'
+      ]
+    },
+    {
+      num: '224', badge: 'Modern Style', type: '1-Bedroom · Sleeps 4', name: 'Beach Condo #224',
+      desc: 'Modern open-plan unit with clean white kitchen, updated bathroom with subway tile and a lovely courtyard balcony view.',
+      tags: ['Full Kitchen','Balcony View','Wi-Fi','Heated Pool'],
+      price: 'From $185',
+      photos: [
+        'images/units/224/04_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Living_room-DSC05912.jpg',
+        'images/units/224/06_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Kitchen-DSC05927.jpg',
+        'images/units/224/07_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bedroom-DSC05933.jpg',
+        'images/units/224/09_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bathroom-DSC05945.jpg'
+      ]
+    },
+    {
+      num: '234', badge: 'Newly Renovated', type: '1-Bedroom · Sleeps 4', name: 'Beach Bungalow #234',
+      desc: 'Beautifully renovated unit with stainless appliances, quartz counters, pendant lighting and a private brick patio with BBQ.',
+      tags: ['Full Kitchen','Private Patio','Wi-Fi','Pool Access'],
+      price: 'From $210',
+      photos: [
+        'images/units/234/unit 234-1C - Copy.JPG',
+        'images/units/234/unit 234-3C.JPG',
+        'images/units/234/unit 234-9C.JPG',
+        'images/units/234/unit 234-10C.JPG'
+      ]
+    },
+    {
+      num: '237', badge: 'Ocean View', type: '1-Bedroom · Sleeps 4', name: 'Ocean View Balcony #237',
+      desc: 'Private balcony with direct Pacific views. Ground-level access to beach, pool & BBQ courtyard — one of our most sought-after units.',
+      tags: ['Full Kitchen','Ocean Balcony','Wi-Fi','Heated Pool'],
+      price: 'From $175',
+      photos: [
+        'images/units/237/05_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Living_room-DSC04667.jpg',
+        'images/units/237/06_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Kitchen-DSC04646.jpg',
+        'images/units/237/08_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bedroom-DSC04619.jpg',
+        'images/units/237/09_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bathroom-DSC04637.jpg'
+      ]
+    }
+  ];
+
+  // Shuffle and pick 3 random units
+  const shuffled = ALL_UNITS.sort(() => Math.random() - 0.5).slice(0, 3);
+  const delays = ['', ' reveal-delay-1', ' reveal-delay-2'];
+  const grid = document.getElementById('units-grid');
+
+  grid.innerHTML = shuffled.map((u, i) => {
+    // Pick a random photo for this unit
+    const photo = u.photos[Math.floor(Math.random() * u.photos.length)];
+    const tags = u.tags.map(t => `<span class="amenity-tag">${t}</span>`).join('');
+    return `
+      <div class="unit-card reveal${delays[i]}">
+        <div class="unit-img" style="background-image:url('${photo}');">
+          <div class="unit-badge">${u.badge}</div>
+        </div>
+        <div class="unit-body">
+          <p class="unit-type">${u.type}</p>
+          <h3 class="unit-name">${u.name}</h3>
+          <p class="unit-desc">${u.desc}</p>
+          <div class="unit-amenities">${tags}</div>
+          <div class="unit-footer">
+            <div class="unit-price">${u.price} <span>/ night</span></div>
+            <a href="booking.html" class="unit-link">Book <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></a>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+})();
+</script>
+
+<!-- POOL FULL-BLEED — real pool photo -->
+<div class="pool-section">
+  <div class="pool-bg"></div>
+  <div class="pool-overlay"></div>
+  <div class="pool-content reveal">
+    <h2>Heated year-round.<br><em>Always waiting.</em></h2>
+    <p>The pool and whirlpool spa are open 365 days a year — because perfect California weather deserves a perfect poolside moment.</p>
+    <a href="booking.html" class="btn-primary">Reserve Your Stay</a>
+  </div>
+</div>
+
+<!-- PHOTO STRIP — real interior and property photos -->
+<div class="photo-strip">
+  <div class="photo-strip-item"><img src="images/exterior-night.jpg" alt="Sunset Shores at night"></div>
+  <div class="photo-strip-item"><img src="images/office.jpg" alt="Sunset Shores office"></div>
+  <div class="photo-strip-item"><img src="images/sign-street.jpg" alt="Sunset Shores sign"></div>
+  <div class="photo-strip-item"><img src="images/ev-bikes.jpg" alt="EV charging and bikes"></div>
+  <div class="photo-strip-item"><img src="images/beach.jpg" alt="Carpinteria State Beach"></div>
+</div>
+
+<section class="testimonials">
+  <div class="section-inner">
+    <p class="section-label reveal">Guest Reviews</p>
+    <h2 class="section-heading reveal">What guests <em>say</em></h2>
+    <div class="testimonials-grid">
+      <div class="testimonial-card reveal">
+        <div class="testimonial-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
+        <p class="testimonial-text">"Absolutely magical. The sunsets from our balcony were unreal — we watched the sky turn orange and pink every evening. The unit was spotless and the pool was warm even in November."</p>
+        <div class="testimonial-author">Sarah M.</div><div class="testimonial-date">November 2024</div>
+      </div>
+      <div class="testimonial-card reveal reveal-delay-1">
+        <div class="testimonial-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
+        <p class="testimonial-text">"We've stayed here three years running. Carpinteria is our favorite town and Sunset Shores is our home away from home. The on-site staff genuinely care and remember our names."</p>
+        <div class="testimonial-author">David & Ellen K.</div><div class="testimonial-date">September 2024</div>
+      </div>
+      <div class="testimonial-card reveal reveal-delay-2">
+        <div class="testimonial-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
+        <p class="testimonial-text">"Perfect spot for a month-long remote work escape. Great Wi-Fi, a quiet courtyard to think, and the beach literally across the street. I'll be back every January."</p>
+        <div class="testimonial-author">James T.</div><div class="testimonial-date">January 2025</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="location" id="location">
+  <div class="section-inner">
+    <div class="location-grid">
+      <div>
+        <p class="section-label reveal">Find Us</p>
+        <h2 class="section-heading reveal">Right where<br>you want<br>to <em>be</em></h2>
+        <p style="color:var(--text-mid);line-height:1.8;font-size:.95rem;font-weight:300;margin:1rem 0 .5rem;" class="reveal reveal-delay-1">4980 Sandyland Road, Carpinteria, CA 93013 — steps from the state beach, a short bike ride from downtown, and two blocks from the Amtrak platform.</p>
+        <div class="location-highlights reveal reveal-delay-2">
+          <div class="location-item"><div class="location-dot"></div><div class="location-item-text"><strong>Carpinteria State Beach</strong><span>Across the street — "World's Safest Beach"</span></div></div>
+          <div class="location-item"><div class="location-dot"></div><div class="location-item-text"><strong>Downtown Carpinteria</strong><span>5-minute walk · shops, restaurants & weekly farmers market</span></div></div>
+          <div class="location-item"><div class="location-dot"></div><div class="location-item-text"><strong>Amtrak Station</strong><span>2 blocks · Pacific Surfliner to Santa Barbara & Ventura</span></div></div>
+          <div class="location-item"><div class="location-dot"></div><div class="location-item-text"><strong>Santa Barbara</strong><span>12 miles north · dining, wine country & museums</span></div></div>
+          <div class="location-item"><div class="location-dot"></div><div class="location-item-text"><strong>Electric Shuttle Stop</strong><span>In front of Sunset Shores — car-free is the way to go</span></div></div>
+        </div>
+      </div>
+      <div class="reveal reveal-delay-1">
+        <div class="location-map">
+          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d834.12!2d-119.5246!3d34.3872!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80e91630bc2a1fc1%3A0x2e6ce8c61a02e5d!2s4980%20Sandyland%20Rd%2C%20Carpinteria%2C%20CA%2093013!5e0!3m2!1sen!2sus!4v1700000000000!5m2!1sen!2sus" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Sunset Shores location"></iframe>
+        </div>
+        <div style="margin-top:1.5rem;display:flex;gap:1rem;flex-wrap:wrap;">
+          <a href="booking.html" class="btn-primary">Book Your Stay</a>
+          <a href="tel:+18056843682" class="btn-ghost" style="color:var(--ocean-deep);border-color:var(--ocean-mid);">(805) 684-3682</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="contact-strip" id="contact">
+  <div class="contact-item"><span class="contact-label">Phone</span><a href="tel:+18056843682" class="contact-value">(805) 684-3682</a></div>
+  <div style="width:1px;height:48px;background:var(--sand-mid);"></div>
+  <div class="contact-item"><span class="contact-label">Email</span><a href="mailto:info@sunsetshorescarp.com" class="contact-value">info@sunsetshorescarp.com</a></div>
+  <div style="width:1px;height:48px;background:var(--sand-mid);"></div>
+  <div class="contact-item"><span class="contact-label">Address</span><span class="contact-value" style="font-size:1rem;">4980 Sandyland Rd, Carpinteria CA</span></div>
+  <div style="width:1px;height:48px;background:var(--sand-mid);"></div>
+  <div class="contact-item"><span class="contact-label">Owner Portal</span><a href="https://portal7.resortplanet.com/rms-live/ownerlogin/login/sunset" class="contact-value" style="font-size:1rem;">Owner Login</a></div>
+</div>
+
+<footer>
+  <div class="footer-logo">Sunset Shores <span>Carpinteria, California</span></div>
+  <ul class="footer-links">
+    <li><a href="rates.html">Rates</a></li>
+    <li><a href="policies.html">Policies</a></li>
+    <li><a href="faq.html">FAQ</a></li>
+    <li><a href="area-guide.html">Area Guide</a></li>
+    <li><a href="reviews.html">Reviews</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <p class="footer-copy">&copy; 2026 Sunset Shores Coastal Condominiums</p>
+</footer>
+
+<script>
+  // Sticky nav
+  const nav = document.getElementById('mainNav');
+  window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 60));
+
+  // Hamburger menu
+  const hamburger = document.getElementById('navHamburger');
+  const navLinks  = document.getElementById('navLinks');
+  const overlay   = document.getElementById('navOverlay');
+
+  function openMenu() {
+    hamburger.classList.add('open');
+    navLinks.classList.add('open');
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMenu() {
+    hamburger.classList.remove('open');
+    navLinks.classList.remove('open');
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  hamburger.addEventListener('click', () => navLinks.classList.contains('open') ? closeMenu() : openMenu());
+  overlay.addEventListener('click', closeMenu);
+  document.querySelectorAll('.nav-close').forEach(a => a.addEventListener('click', closeMenu));
+
+  // Scroll reveal
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

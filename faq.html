@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAQ — Sunset Shores Carpinteria</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --sand: #F5EDD8; --sand-light: #FBF7EE; --sand-mid: #E8D9B8;
+    --ocean: #1C4F6B; --ocean-deep: #0F2F42; --ocean-mid: #2E7A9E; --ocean-light: #A8CDD9;
+    --coral: #D4614B; --sunset: #E8935A; --white: #FFFFFF;
+    --text-dark: #1A1A1A; --text-mid: #4A4A4A; --text-light: #7A7A7A;
+    --font-serif: 'Cormorant Garamond', Georgia, serif; --font-sans: 'DM Sans', sans-serif;
+  }
+  body { font-family: var(--font-sans); background: var(--sand-light); color: var(--text-dark); }
+
+  nav {
+    background: var(--ocean-deep); padding: 1rem 2rem;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+  }
+  .nav-logo { font-family: var(--font-serif); font-size: 1.3rem; font-weight: 300; color: var(--white); text-decoration: none; letter-spacing: .04em; line-height: 1.1; }
+  .nav-logo span { display: block; font-family: var(--font-sans); font-size: .6rem; letter-spacing: .22em; text-transform: uppercase; color: var(--ocean-light); margin-top: 2px; }
+  .nav-back { color: var(--ocean-light); text-decoration: none; font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; display: flex; align-items: center; gap: .4rem; transition: color .2s; }
+  .nav-back:hover { color: var(--white); }
+  .nav-back svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  .page-header {
+    background: linear-gradient(135deg, var(--ocean-deep) 0%, var(--ocean) 100%);
+    padding: 3rem 2rem; text-align: center;
+  }
+  .page-header h1 { font-family: var(--font-serif); font-size: clamp(2rem, 4vw, 3rem); font-weight: 300; color: var(--white); margin-bottom: .5rem; }
+  .page-header h1 em { font-style: italic; color: #F4B07A; }
+  .page-header p { color: rgba(255,255,255,.65); font-size: .88rem; font-weight: 300; }
+
+  .content-wrap { max-width: 820px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+
+  /* SEARCH/FILTER BAR */
+  .search-bar { margin-bottom: 2.5rem; position: relative; }
+  .search-bar input {
+    width: 100%; padding: .9rem 1.2rem .9rem 2.8rem; font-size: .92rem; font-family: var(--font-sans);
+    border: 1px solid var(--sand-mid); border-radius: 4px; outline: none; background: var(--white);
+    transition: border-color .2s; color: var(--text-dark);
+  }
+  .search-bar input:focus { border-color: var(--ocean-mid); }
+  .search-bar svg { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; stroke: var(--text-light); fill: none; stroke-width: 2; }
+
+  /* CATEGORY PILLS */
+  .category-pills { display: flex; gap: .6rem; flex-wrap: wrap; margin-bottom: 2.5rem; }
+  .pill {
+    background: var(--white); border: 1px solid var(--sand-mid); border-radius: 20px; padding: .5rem 1.1rem;
+    font-size: .78rem; color: var(--text-mid); cursor: pointer; transition: all .2s; font-weight: 400;
+  }
+  .pill:hover { border-color: var(--ocean-mid); }
+  .pill.active { background: var(--ocean-deep); color: var(--white); border-color: var(--ocean-deep); }
+
+  /* FAQ ACCORDION */
+  .faq-list { display: flex; flex-direction: column; gap: .8rem; }
+  .faq-item {
+    background: var(--white); border: 1px solid var(--sand-mid); border-radius: 4px; overflow: hidden;
+    transition: border-color .2s;
+  }
+  .faq-item:hover { border-color: var(--ocean-mid); }
+  .faq-item.hidden { display: none; }
+  .faq-question {
+    padding: 1.2rem 1.4rem; display: flex; justify-content: space-between; align-items: center;
+    cursor: pointer; gap: 1rem; user-select: none;
+  }
+  .faq-question-text { font-family: var(--font-serif); font-size: 1.05rem; font-weight: 500; color: var(--ocean-deep); line-height: 1.4; }
+  .faq-chevron { width: 18px; height: 18px; stroke: var(--ocean); fill: none; stroke-width: 2; flex-shrink: 0; transition: transform .25s; }
+  .faq-item.open .faq-chevron { transform: rotate(180deg); }
+  .faq-answer { max-height: 0; overflow: hidden; transition: max-height .3s ease; }
+  .faq-item.open .faq-answer { max-height: 600px; }
+  .faq-answer-inner { padding: 0 1.4rem 1.3rem; font-size: .9rem; color: var(--text-mid); line-height: 1.8; font-weight: 300; }
+  .faq-answer-inner a { color: var(--ocean); text-decoration: underline; }
+  .faq-answer-inner strong { color: var(--ocean-deep); font-weight: 500; }
+
+  .alert-note {
+    background: #fdf0ee; border: 1px solid #e8b4ac; border-radius: 4px;
+    padding: .9rem 1.1rem; margin-top: .8rem; font-size: .84rem; color: #C0392B; line-height: 1.7;
+  }
+
+  .no-results { text-align: center; padding: 3rem 1rem; color: var(--text-light); font-size: .9rem; font-weight: 300; font-style: italic; display: none; }
+
+  /* CTA */
+  .cta-box {
+    background: var(--ocean-deep); border-radius: 4px; padding: 2.5rem 2rem; text-align: center; margin-top: 3rem;
+  }
+  .cta-box h3 { font-family: var(--font-serif); font-size: 1.6rem; font-weight: 300; color: var(--white); margin-bottom: .6rem; }
+  .cta-box p { color: rgba(255,255,255,.65); font-size: .9rem; font-weight: 300; margin-bottom: 1.6rem; line-height: 1.7; }
+  .cta-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--coral); color: var(--white); padding: .85rem 2rem; font-size: .82rem; font-weight: 500;
+    letter-spacing: .1em; text-transform: uppercase; border: none; cursor: pointer; text-decoration: none;
+    border-radius: 2px; display: inline-block; transition: background .2s;
+  }
+  .btn-primary:hover { background: #bf4f3b; }
+  .btn-ghost {
+    color: rgba(255,255,255,.9); padding: .85rem 2rem; font-size: .82rem; font-weight: 400;
+    letter-spacing: .08em; text-transform: uppercase; border: 1px solid rgba(255,255,255,.4);
+    background: transparent; cursor: pointer; text-decoration: none; border-radius: 2px;
+    display: inline-block; transition: background .2s, border-color .2s;
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.7); }
+
+  footer {
+    background: var(--ocean-deep); color: rgba(255,255,255,.55); padding: 2.5rem 2rem;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;
+    border-top: 1px solid rgba(255,255,255,.08);
+  }
+  .footer-logo { font-family: var(--font-serif); font-size: 1.2rem; font-weight: 300; color: var(--white); letter-spacing: .04em; }
+  .footer-copy { font-size: .75rem; color: rgba(255,255,255,.3); }
+
+  @media (max-width: 600px) {
+    nav { padding: 1rem 1.2rem; }
+    .content-wrap { padding: 2rem 1.2rem 3rem; }
+    .cta-buttons { flex-direction: column; }
+    .cta-buttons a { width: 100%; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">Sunset Shores <span>Carpinteria, California</span></a>
+  <a href="index.html" class="nav-back">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Back to Site
+  </a>
+</nav>
+
+<div class="page-header">
+  <h1>Frequently Asked <em>Questions</em></h1>
+  <p>Everything you need to know before booking your stay</p>
+</div>
+
+<div class="content-wrap">
+
+  <!-- SEARCH -->
+  <div class="search-bar">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="faq-search" placeholder="Search FAQs… e.g. parking, pets, rates" />
+  </div>
+
+  <!-- CATEGORY FILTERS -->
+  <div class="category-pills" id="category-pills">
+    <div class="pill active" data-cat="all">All Questions</div>
+    <div class="pill" data-cat="booking">Booking</div>
+    <div class="pill" data-cat="property">Property</div>
+    <div class="pill" data-cat="policies">Policies</div>
+  </div>
+
+  <!-- FAQ LIST -->
+  <div class="faq-list" id="faq-list">
+
+    <div class="faq-item" data-cat="booking">
+      <div class="faq-question">
+        <div class="faq-question-text">How do I make a reservation?</div>
+        <svg class="faq-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        You can book online for rentals of one or two weeks, or call us for longer rentals at <a href="tel:+18056843682">(805) 684-3682</a> or <a href="mailto:info@sunsetshorescarp.com">email us</a>. We look forward to hearing from you!
+      </div></div>
+    </div>
+
+    <div class="faq-item" data-cat="booking">
+      <div class="faq-question">
+        <div class="faq-question-text">Can I rent a condo for one night?</div>
+        <svg class="faq-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        No, we have a <strong>seven night minimum</strong> stay requirement on all reservations.
+      </div></div>
+    </div>
+
+    <div class="faq-item" data-cat="booking">
+      <div class="faq-question">
+        <div class="faq-question-text">What are the rates?</div>
+        <svg class="faq-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        The rates change depending on the season, the size of the unit, and the length of stay. Check our <a href="rates.html">Rates &amp; Reservations</a> page for more information, or <a href="index.html#contact">contact us</a> directly.
+      </div></div>
+    </div>
+
+    <div class="faq-item" data-cat="booking">
+      <div class="faq-question">
+        <div class="faq-question-text">Do you offer AAA, senior, or other discounts?</div>
+        <svg class="faq-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        Because each condo is individually owned and priced, we're unable to offer these types of discounts.
+      </div></div>
+    </div>
+
+    <div class="faq-item" data-cat="booking">
+      <div class="faq-question">
+        <div class="faq-question-text">What payment methods do you accept?</div>
+        <svg class="faq-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        We accept all major credit cards. A $500 refundable security deposit is required to hold your reservation, and rent is due 30 days prior to arrival.
+      </div></div>
+    </div>
+
+    <div class="faq-item" data-cat="property">
+      <div class="faq-question">
+        <div class="faq-question-text">Do you have an elevator?</div>
+        <svg class="faq-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        No, we do not have an elevator. However, we do have luggage carts available to help you move your belongings to your condo with ease.
+      </div></div>
+    </div>
+
+    <div class="faq-item" data-cat="property">
+      <div class="faq-question">
+        <div class="faq-question-text">What should I bring?</div>
+        <svg class="faq-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        All condos are fully furnished and have fully stocked kitchens. All come with bed covers, blankets, and pillows. If you'd like us to also provide bed sheets and bath towels (for an extra charge), please let us know in advance. Otherwise, please save some space in your luggage for those items.
+      </div></div>
+    </div>
+
+    <div class="faq-item" data-cat="property">
+      <div class="faq-question">
+        <div class="faq-question-text">How many parking spaces are available for each condo?</div>
+        <svg class="faq-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        Each condo has one parking space inside our gated lot. There's also free street parking in front of our complex with no time limit, except on <strong>Tuesdays between 9:00am and 11:00am</strong> when street sweeping occurs.
+      </div></div>
+    </div>
+
+    <div class="faq-item" data-cat="property">
+      <div class="faq-question">
+        <div class="faq-question-text">Do all vacation rental condos at Sunset Shores have ocean views?</div>
+        <svg class="faq-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        Some do and some don't. Those that do only have partial views, since we're located across the street from the beach and not directly on the beach.
+      </div></div>
+    </div>
+
+    <div class="faq-item" data-cat="property">
+      <div class="faq-question">
+        <div class="faq-question-text">Are there barbecues available for use?</div>
+        <svg class="faq-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        Yes, natural gas barbecues are located in the common areas of each building. We also have full-sized picnic tables for you to use.
+        <div class="alert-note">Please be advised that barbecues are not allowed on private patios or decks.</div>
+      </div></div>
+    </div>
+
+    <div class="faq-item" data-cat="property">
+      <div class="faq-question">
+        <div class="faq-question-text">Do condos at Sunset Shores ever come up for sale?</div>
+        <svg class="faq-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        Yes, but we are strictly a rental office, so you'll need to contact a local real estate agent if you're interested in purchasing a unit.
+      </div></div>
+    </div>
+
+    <div class="faq-item" data-cat="policies">
+      <div class="faq-question">
+        <div class="faq-question-text">Can I bring my pet with me?</div>
+        <svg class="faq-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        Sorry, no pets are allowed. Service animals specifically trained to aid a person with a disability are welcome.
+      </div></div>
+    </div>
+
+    <div class="faq-item" data-cat="policies">
+      <div class="faq-question">
+        <div class="faq-question-text">Can we have guests come to visit?</div>
+        <svg class="faq-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        Yes, but remember a maximum of only four to six people (depending on the condo) can stay <strong>overnight</strong> in a condo on any given night. The person whose name the reservation is in must be present for any overnight guests, unless previous arrangements are made with management. No subletting is allowed.
+      </div></div>
+    </div>
+
+    <div class="faq-item" data-cat="policies">
+      <div class="faq-question">
+        <div class="faq-question-text">Is smoking permitted at Sunset Shores?</div>
+        <svg class="faq-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        No, Sunset Shores is a smoke-free property.
+        <div class="alert-note">Smoking is not allowed anywhere on our grounds, and the City of Carpinteria has a no smoking ordinance that is strictly enforced.</div>
+      </div></div>
+    </div>
+
+    <div class="faq-item" data-cat="policies">
+      <div class="faq-question">
+        <div class="faq-question-text">What is your cancellation policy?</div>
+        <svg class="faq-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        All cancelled reservations are subject to a $250 cancellation fee. If you cancel less than 60 days prior to arrival, a $500 cancellation fee will apply. No refunds will be issued for reservations cancelled less than 30 days prior to arrival, unless the unit is re-rented for the same time period and rate. Full details are on our <a href="rates.html">Rates &amp; Reservations</a> page.
+      </div></div>
+    </div>
+
+    <div class="faq-item" data-cat="policies">
+      <div class="faq-question">
+        <div class="faq-question-text">What time is check-in and check-out?</div>
+        <svg class="faq-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        Check-out time is <strong>10:00am</strong>. To avoid cleaning charges beyond your prepaid departure cleaning fee, please leave the unit as you found it at check-in. See our <a href="policies.html">Rental Policies</a> page for full check-in and check-out guidelines.
+      </div></div>
+    </div>
+
+  </div>
+
+  <div class="no-results" id="no-results">No questions matched your search. Try a different term or browse all categories.</div>
+
+  <!-- CTA -->
+  <div class="cta-box">
+    <h3>Still Have Questions?</h3>
+    <p>Our team is happy to help with anything not covered here — reach out any time.</p>
+    <div class="cta-buttons">
+      <a href="tel:+18056843682" class="btn-primary">📞 (805) 684-3682</a>
+      <a href="mailto:info@sunsetshorescarp.com" class="btn-ghost">✉️ Email Us</a>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-logo">Sunset Shores</div>
+  <p class="footer-copy">&copy; 2026 Sunset Shores Coastal Condominiums</p>
+</footer>
+
+<script>
+  document.querySelectorAll('.faq-question').forEach(q => {
+    q.addEventListener('click', () => {
+      q.closest('.faq-item').classList.toggle('open');
+    });
+  });
+
+  const pills = document.querySelectorAll('.pill');
+  const items = document.querySelectorAll('.faq-item');
+  const searchInput = document.getElementById('faq-search');
+  const noResults = document.getElementById('no-results');
+  let activeCat = 'all';
+
+  function filterItems() {
+    const query = searchInput.value.toLowerCase().trim();
+    let visibleCount = 0;
+
+    items.forEach(item => {
+      const matchesCat = activeCat === 'all' || item.dataset.cat === activeCat;
+      const text = item.textContent.toLowerCase();
+      const matchesSearch = !query || text.includes(query);
+
+      if (matchesCat && matchesSearch) {
+        item.classList.remove('hidden');
+        visibleCount++;
+      } else {
+        item.classList.add('hidden');
+      }
+    });
+
+    noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+  }
+
+  pills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      pills.forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      activeCat = pill.dataset.cat;
+      filterItems();
+    });
+  });
+
+  searchInput.addEventListener('input', filterItems);
+</script>
+
+</body>
+</html>

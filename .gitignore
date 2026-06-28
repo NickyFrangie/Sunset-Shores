@@ -1,0 +1,5 @@
+# Never upload credentials to GitHub
+.env
+
+# Netlify cache
+.netlify

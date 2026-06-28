@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reviews — Sunset Shores Carpinteria</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --sand: #F5EDD8; --sand-light: #FBF7EE; --sand-mid: #E8D9B8;
+    --ocean: #1C4F6B; --ocean-deep: #0F2F42; --ocean-mid: #2E7A9E; --ocean-light: #A8CDD9;
+    --coral: #D4614B; --sunset: #E8935A; --white: #FFFFFF; --green: #2E7D5A;
+    --text-dark: #1A1A1A; --text-mid: #4A4A4A; --text-light: #7A7A7A;
+    --font-serif: 'Cormorant Garamond', Georgia, serif; --font-sans: 'DM Sans', sans-serif;
+  }
+  body { font-family: var(--font-sans); background: var(--sand-light); color: var(--text-dark); }
+
+  nav {
+    background: var(--ocean-deep); padding: 1rem 2rem;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+  }
+  .nav-logo { font-family: var(--font-serif); font-size: 1.3rem; font-weight: 300; color: var(--white); text-decoration: none; letter-spacing: .04em; line-height: 1.1; }
+  .nav-logo span { display: block; font-family: var(--font-sans); font-size: .6rem; letter-spacing: .22em; text-transform: uppercase; color: var(--ocean-light); margin-top: 2px; }
+  .nav-back { color: var(--ocean-light); text-decoration: none; font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; display: flex; align-items: center; gap: .4rem; transition: color .2s; }
+  .nav-back:hover { color: var(--white); }
+  .nav-back svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  .page-header {
+    background: linear-gradient(135deg, var(--ocean-deep) 0%, var(--ocean) 100%);
+    padding: 3rem 2rem; text-align: center;
+  }
+  .page-header h1 { font-family: var(--font-serif); font-size: clamp(2rem, 4vw, 3rem); font-weight: 300; color: var(--white); margin-bottom: .5rem; }
+  .page-header h1 em { font-style: italic; color: #F4B07A; }
+  .page-header p { color: rgba(255,255,255,.65); font-size: .88rem; font-weight: 300; }
+
+  /* RATING SUMMARY BAR */
+  .rating-summary {
+    max-width: 980px; margin: -1.5rem auto 0; padding: 0 1.5rem; position: relative; z-index: 2;
+  }
+  .rating-card {
+    background: var(--white); border: 1px solid var(--sand-mid); border-radius: 4px;
+    padding: 1.8rem 2rem; display: flex; align-items: center; gap: 2.5rem; flex-wrap: wrap;
+    box-shadow: 0 8px 32px rgba(15,47,66,.1);
+  }
+  .rating-score { text-align: center; }
+  .rating-score-num { font-family: var(--font-serif); font-size: 3rem; font-weight: 400; color: var(--ocean); line-height: 1; }
+  .rating-stars-row { display: flex; gap: 3px; justify-content: center; margin: .5rem 0 .3rem; }
+  .rating-count { font-size: .75rem; color: var(--text-light); font-weight: 300; }
+  .rating-divider { width: 1px; height: 60px; background: var(--sand-mid); }
+  .rating-breakdown { flex: 1; min-width: 220px; display: flex; flex-direction: column; gap: .4rem; }
+  .breakdown-row { display: flex; align-items: center; gap: .8rem; font-size: .78rem; color: var(--text-mid); }
+  .breakdown-row span:first-child { width: 50px; flex-shrink: 0; }
+  .breakdown-bar-track { flex: 1; height: 6px; background: var(--sand); border-radius: 3px; overflow: hidden; }
+  .breakdown-bar-fill { height: 100%; background: var(--sunset); border-radius: 3px; }
+  .breakdown-row span:last-child { width: 30px; text-align: right; flex-shrink: 0; }
+
+  .content-wrap { max-width: 980px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+
+  .star { width: 16px; height: 16px; background: var(--sand-mid); clip-path: polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%); }
+  .star.filled { background: var(--sunset); }
+  .star.small { width: 13px; height: 13px; }
+
+  /* SECTION HEADING */
+  .section-heading-row {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.8rem; flex-wrap: wrap; gap: 1rem;
+  }
+  .section-heading {
+    font-family: var(--font-serif); font-size: 1.7rem; font-weight: 400; color: var(--ocean-deep);
+  }
+  .btn-add-review {
+    background: var(--coral); color: var(--white); border: none; cursor: pointer;
+    padding: .75rem 1.5rem; font-size: .8rem; font-weight: 500; letter-spacing: .08em;
+    text-transform: uppercase; border-radius: 2px; font-family: var(--font-sans);
+    transition: background .2s;
+  }
+  .btn-add-review:hover { background: #bf4f3b; }
+
+  /* REVIEW CARDS */
+  .review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 4rem; }
+  .review-card {
+    background: var(--white); border: 1px solid var(--sand-mid); border-radius: 4px; padding: 1.6rem;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .review-card:hover { border-color: var(--ocean-mid); box-shadow: 0 6px 24px rgba(15,47,66,.08); }
+  .review-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: .8rem; gap: 1rem; }
+  .review-stars { display: flex; gap: 2px; }
+  .review-date { font-size: .72rem; color: var(--text-light); font-weight: 300; white-space: nowrap; }
+  .review-text { font-family: var(--font-serif); font-size: 1.02rem; font-style: italic; color: var(--text-mid); line-height: 1.7; margin-bottom: 1rem; }
+  .review-author { font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ocean); font-weight: 500; }
+  .review-stay { font-size: .72rem; color: var(--text-light); margin-top: .15rem; }
+
+  /* NO REVIEWS STATE */
+  .no-reviews {
+    background: var(--white); border: 1px dashed var(--sand-mid); border-radius: 4px;
+    padding: 3rem 2rem; text-align: center; margin-bottom: 4rem; display: none;
+  }
+  .no-reviews p { color: var(--text-light); font-size: .92rem; font-weight: 300; font-style: italic; }
+
+  /* FORM SECTION */
+  .form-panel {
+    background: var(--white); border: 1px solid var(--sand-mid); border-radius: 4px; padding: 2.2rem;
+  }
+  .form-panel-title { font-family: var(--font-serif); font-size: 1.5rem; font-weight: 400; color: var(--ocean-deep); margin-bottom: .4rem; }
+  .form-panel-subtitle { font-size: .85rem; color: var(--text-light); font-weight: 300; margin-bottom: 1.8rem; }
+
+  .rating-input-row { margin-bottom: 1.6rem; }
+  .rating-input-row label { font-size: .68rem; letter-spacing: .15em; text-transform: uppercase; color: var(--text-light); font-weight: 400; display: block; margin-bottom: .6rem; }
+  .star-picker { display: flex; gap: 6px; align-items: center; }
+  .star-picker .star-btn { cursor: pointer; width: 30px; height: 30px; background: none; border: none; padding: 0; transition: transform .15s; }
+  .star-picker .star-btn:hover { transform: scale(1.15); }
+  .star-picker .star-btn svg { width: 100%; height: 100%; }
+  .rating-value-label { font-size: .85rem; color: var(--ocean); font-weight: 500; margin-left: .6rem; }
+
+  .review-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+  .form-group { display: flex; flex-direction: column; gap: .4rem; }
+  .form-group.full { grid-column: 1 / 3; }
+  .form-group label { font-size: .68rem; letter-spacing: .15em; text-transform: uppercase; color: var(--text-light); font-weight: 400; }
+  .form-group input, .form-group textarea, .form-group select {
+    border: 1px solid var(--sand-mid); padding: .75rem 1rem; font-size: .9rem;
+    font-family: var(--font-sans); border-radius: 2px; outline: none; background: var(--sand-light);
+    transition: border-color .2s; color: var(--text-dark); resize: vertical;
+  }
+  .form-group textarea { min-height: 130px; line-height: 1.6; }
+  .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--ocean-mid); background: var(--white); }
+  .form-hint { font-size: .72rem; color: var(--text-light); font-weight: 300; margin-top: .3rem; }
+
+  .required-note { font-size: .72rem; color: var(--text-light); font-weight: 300; margin-top: .3rem; }
+  .required-note span { color: var(--coral); }
+
+  .btn-submit {
+    background: var(--ocean-deep); color: var(--white); border: none; cursor: pointer;
+    padding: .9rem 2.2rem; font-size: .82rem; font-weight: 500; letter-spacing: .08em;
+    text-transform: uppercase; border-radius: 2px; font-family: var(--font-sans);
+    transition: background .2s; margin-top: .5rem;
+  }
+  .btn-submit:hover { background: var(--ocean); }
+
+  .alert { padding: 1rem 1.2rem; border-radius: 4px; font-size: .88rem; margin-bottom: 1.5rem; display: none; line-height: 1.6; }
+  .alert.visible { display: block; }
+  .alert-success { background: #edf7f2; border: 1px solid #a8d5bc; color: var(--green); }
+  .alert-error { background: #fdf0ee; border: 1px solid #e8b4ac; color: #C0392B; }
+
+  footer {
+    background: var(--ocean-deep); color: rgba(255,255,255,.55); padding: 2.5rem 2rem;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;
+  }
+  .footer-logo { font-family: var(--font-serif); font-size: 1.2rem; font-weight: 300; color: var(--white); letter-spacing: .04em; }
+  .footer-copy { font-size: .75rem; color: rgba(255,255,255,.3); }
+
+  @media (max-width: 800px) {
+    .review-grid { grid-template-columns: 1fr; }
+    .review-form { grid-template-columns: 1fr; }
+    .form-group.full { grid-column: 1; }
+    .rating-card { flex-direction: column; gap: 1.5rem; text-align: center; }
+    .rating-divider { display: none; }
+    .rating-breakdown { width: 100%; }
+  }
+  @media (max-width: 500px) {
+    nav { padding: 1rem 1.2rem; }
+    .content-wrap { padding: 2.5rem 1.2rem 3rem; }
+    .form-panel { padding: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">Sunset Shores <span>Carpinteria, California</span></a>
+  <a href="index.html" class="nav-back">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Back to Site
+  </a>
+</nav>
+
+<div class="page-header">
+  <h1>Guest <em>Reviews</em></h1>
+  <p>Real stories from real guests who've stayed at Sunset Shores</p>
+</div>
+
+<!-- RATING SUMMARY -->
+<div class="rating-summary">
+  <div class="rating-card">
+    <div class="rating-score">
+      <div class="rating-score-num">4.9</div>
+      <div class="rating-stars-row" id="summary-stars"></div>
+      <div class="rating-count">Based on 3 reviews</div>
+    </div>
+    <div class="rating-divider"></div>
+    <div class="rating-breakdown">
+      <div class="breakdown-row"><span>5 stars</span><div class="breakdown-bar-track"><div class="breakdown-bar-fill" style="width:90%;"></div></div><span>3</span></div>
+      <div class="breakdown-row"><span>4 stars</span><div class="breakdown-bar-track"><div class="breakdown-bar-fill" style="width:0%;"></div></div><span>0</span></div>
+      <div class="breakdown-row"><span>3 stars</span><div class="breakdown-bar-track"><div class="breakdown-bar-fill" style="width:0%;"></div></div><span>0</span></div>
+      <div class="breakdown-row"><span>2 stars</span><div class="breakdown-bar-track"><div class="breakdown-bar-fill" style="width:0%;"></div></div><span>0</span></div>
+      <div class="breakdown-row"><span>1 star</span><div class="breakdown-bar-track"><div class="breakdown-bar-fill" style="width:0%;"></div></div><span>0</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="content-wrap">
+
+  <!-- EXISTING REVIEWS -->
+  <div class="section-heading-row">
+    <h2 class="section-heading">What guests are saying</h2>
+  </div>
+
+  <div class="review-grid" id="review-grid">
+    <div class="review-card">
+      <div class="review-card-header">
+        <div class="review-stars" data-rating="5"></div>
+        <div class="review-date">November 2024</div>
+      </div>
+      <p class="review-text">"Absolutely magical. The sunsets from our balcony were unreal — we watched the sky turn orange and pink every evening. The unit was spotless and the pool was warm even in November."</p>
+      <div class="review-author">Sarah M.</div>
+      <div class="review-stay">Stayed in a 1-bedroom ocean view unit</div>
+    </div>
+
+    <div class="review-card">
+      <div class="review-card-header">
+        <div class="review-stars" data-rating="5"></div>
+        <div class="review-date">September 2024</div>
+      </div>
+      <p class="review-text">"We've stayed here three years running. Carpinteria is our favorite town and Sunset Shores is our home away from home. The on-site staff genuinely care and remember our names."</p>
+      <div class="review-author">David &amp; Ellen K.</div>
+      <div class="review-stay">Stayed in a 2-bedroom unit</div>
+    </div>
+
+    <div class="review-card">
+      <div class="review-card-header">
+        <div class="review-stars" data-rating="5"></div>
+        <div class="review-date">January 2025</div>
+      </div>
+      <p class="review-text">"Perfect spot for a month-long remote work escape. Great Wi-Fi, a quiet courtyard to think, and the beach literally across the street. I'll be back every January."</p>
+      <div class="review-author">James T.</div>
+      <div class="review-stay">Stayed in a 1-bedroom unit, monthly rental</div>
+    </div>
+  </div>
+
+  <div class="no-reviews" id="no-reviews-msg">
+    <p>There are no approved testimonials to display!</p>
+  </div>
+
+  <!-- ADD A TESTIMONIAL FORM -->
+  <div class="form-panel">
+    <h2 class="form-panel-title">Add a Testimonial</h2>
+    <p class="form-panel-subtitle">Share your Sunset Shores experience with future guests. Submissions are reviewed before being published.</p>
+
+    <div id="form-alert" class="alert alert-success"></div>
+
+    <form id="testimonial-form">
+      <div class="rating-input-row">
+        <label>Rating *</label>
+        <div style="display:flex; align-items:center;">
+          <div class="star-picker" id="star-picker"></div>
+          <span class="rating-value-label" id="rating-label">Select a rating</span>
+        </div>
+        <input type="hidden" id="ratingValue" value="0" />
+      </div>
+
+      <div class="review-form">
+        <div class="form-group">
+          <label>Your Name *</label>
+          <input type="text" id="reviewerName" placeholder="Jane Doe" />
+        </div>
+        <div class="form-group">
+          <label>Email *</label>
+          <input type="email" id="reviewerEmail" placeholder="jane@example.com" />
+          <div class="form-hint">Your email will not be published</div>
+        </div>
+        <div class="form-group">
+          <label>Unit / Stay Type</label>
+          <input type="text" id="stayType" placeholder="e.g. 2-bedroom, ocean view" />
+        </div>
+        <div class="form-group">
+          <label>Month &amp; Year of Stay</label>
+          <input type="text" id="stayDate" placeholder="e.g. June 2026" />
+        </div>
+        <div class="form-group full">
+          <label>Your Review *</label>
+          <textarea id="reviewText" placeholder="Tell us about your stay…"></textarea>
+          <div class="form-hint">HTML allowed: a, p, br, i, em, strong, q, h1–h6</div>
+        </div>
+      </div>
+
+      <p class="required-note"><span>*</span> Required field</p>
+
+      <button type="submit" class="btn-submit">Submit Testimonial</button>
+    </form>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-logo">Sunset Shores</div>
+  <p class="footer-copy">&copy; 2026 Sunset Shores Coastal Condominiums</p>
+</footer>
+
+<script>
+  function renderStars(container, rating, size) {
+    container.innerHTML = '';
+    for (let i = 1; i <= 5; i++) {
+      const s = document.createElement('div');
+      s.className = 'star' + (size === 'small' ? ' small' : '') + (i <= rating ? ' filled' : '');
+      container.appendChild(s);
+    }
+  }
+
+  renderStars(document.getElementById('summary-stars'), 5, 'small');
+  document.querySelectorAll('.review-stars').forEach(el => {
+    renderStars(el, parseInt(el.dataset.rating), 'small');
+  });
+
+  if (document.querySelectorAll('.review-card').length === 0) {
+    document.getElementById('review-grid').style.display = 'none';
+    document.getElementById('no-reviews-msg').style.display = 'block';
+  }
+
+  const starSvg = (filled) => `
+    <svg viewBox="0 0 24 24" fill="${filled ? '#E8935A' : 'none'}" stroke="${filled ? '#E8935A' : '#D6C9A3'}" stroke-width="1.5">
+      <polygon points="12 2 15 9 22 9.5 17 14.5 18.5 22 12 18 5.5 22 7 14.5 2 9.5 9 9"/>
+    </svg>`;
+
+  const picker = document.getElementById('star-picker');
+  const ratingLabel = document.getElementById('rating-label');
+  const ratingInput = document.getElementById('ratingValue');
+  const labels = ['Select a rating', 'Poor', 'Fair', 'Good', 'Very good', 'Excellent'];
+
+  let currentRating = 0;
+  for (let i = 1; i <= 5; i++) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'star-btn';
+    btn.innerHTML = starSvg(false);
+    btn.addEventListener('mouseenter', () => paintStars(i));
+    btn.addEventListener('mouseleave', () => paintStars(currentRating));
+    btn.addEventListener('click', () => {
+      currentRating = i;
+      ratingInput.value = i;
+      ratingLabel.textContent = labels[i] + ' (' + i + '/5)';
+      paintStars(i);
+    });
+    picker.appendChild(btn);
+  }
+  function paintStars(n) {
+    Array.from(picker.children).forEach((btn, idx) => {
+      btn.innerHTML = starSvg(idx < n);
+    });
+  }
+
+  document.getElementById('testimonial-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const name   = document.getElementById('reviewerName').value.trim();
+    const email  = document.getElementById('reviewerEmail').value.trim();
+    const text   = document.getElementById('reviewText').value.trim();
+    const rating = parseInt(ratingInput.value);
+
+    const alertBox = document.getElementById('form-alert');
+
+    if (!rating) {
+      alertBox.className = 'alert alert-error visible';
+      alertBox.textContent = 'Please select a star rating.';
+      return;
+    }
+    if (!name || !email || !text) {
+      alertBox.className = 'alert alert-error visible';
+      alertBox.textContent = 'Please fill in your name, email, and review.';
+      return;
+    }
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      alertBox.className = 'alert alert-error visible';
+      alertBox.textContent = 'Please enter a valid email address.';
+      return;
+    }
+
+    alertBox.className = 'alert alert-success visible';
+    alertBox.textContent = 'Thank you! Your testimonial has been submitted and is awaiting approval.';
+
+    this.reset();
+    currentRating = 0;
+    ratingInput.value = 0;
+    ratingLabel.textContent = 'Select a rating';
+    paintStars(0);
+
+    window.scrollTo({ top: document.querySelector('.form-panel').offsetTop - 100, behavior: 'smooth' });
+  });
+</script>
+
+</body>
+</html>
