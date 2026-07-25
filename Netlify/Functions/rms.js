@@ -83,7 +83,7 @@ function httpsGet(url) {
     });
 
     req.on('error', reject);
-    req.setTimeout(10000, () => {
+    req.setTimeout(30000, () => {
       req.destroy();
       reject(new Error('Request timed out'));
     });

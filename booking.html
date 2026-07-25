@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Book Your Stay — Sunset Shores Carpinteria</title>
-<script src="https://js.stripe.com/v3/"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -156,7 +155,9 @@
 <body>
 
 <nav>
-  <a href="index.html" class="nav-logo">Sunset Shores <span>Carpinteria, California</span></a>
+  <a href="index.html" class="nav-logo">
+    <img src="https://sunsetshorescarp.com/wp-content/uploads/Sunset Shores v2-03-1.png" alt="Sunset Shores" style="height:62px; width:auto; object-fit:contain; filter:brightness(0) invert(1);" onerror="this.style.display='none'">
+  </a>
   <a href="index.html" class="nav-back">
     <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
     Back to Site
@@ -191,6 +192,7 @@
           <div class="form-group">
             <label>Check-Out Date *</label>
             <input type="date" id="departureDate" />
+            <p style="font-size:.72rem; color:var(--text-light); margin-top:.4rem;">Online booking available for stays up to 30 nights. For longer stays contact <a href="https://www.velo-management.com" target="_blank" style="color:var(--ocean);">Velo Property Management</a>.</p>
           </div>
           <div class="form-group">
             <label>Adults</label>
@@ -268,12 +270,18 @@
           <div class="section-divider">Payment Information</div>
           <div class="form-group full"><label>Name on Card *</label><input type="text" id="cardName" placeholder="John Doe" /></div>
           <div class="form-group full">
-            <label>Card Details *</label>
-            <div id="stripe-card-element" style="border:1px solid var(--sand-mid); padding:.85rem 1rem; border-radius:2px; background:var(--sand-light);"></div>
-            <div id="stripe-card-errors" style="color:#C0392B; font-size:.78rem; margin-top:.4rem;"></div>
-            <div style="font-size:.7rem; color:var(--text-light); margin-top:.5rem; display:flex; align-items:center; gap:.4rem;">
+            <label>Card Number *</label>
+            <div class="card-wrap">
+              <input type="text" id="cardNumber" placeholder="4111 1111 1111 1111" maxlength="19" oninput="formatCard(this)" inputmode="numeric" />
+              <span class="card-emoji" id="cardIcon">💳</span>
+            </div>
+          </div>
+          <div class="form-group"><label>Expiration (MM-YYYY) *</label><input type="text" id="cardExpiry" placeholder="02-2027" maxlength="7" /></div>
+          <div class="form-group"><label>Security Code *</label><input type="text" id="cardCvv" placeholder="123" maxlength="4" inputmode="numeric" /></div>
+          <div class="form-group full">
+            <div style="font-size:.7rem; color:var(--text-light); display:flex; align-items:center; gap:.4rem;">
               <svg viewBox="0 0 24 24" style="width:13px; height:13px; stroke:var(--text-light); fill:none; stroke-width:2;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              Secured by Stripe — your card details never touch our servers
+              Your card details are encrypted and processed securely by RMS
             </div>
           </div>
         </div>
@@ -306,12 +314,41 @@
     <div id="step-5" style="display:none;">
       <div class="panel">
         <div class="confirm-box">
+          <!-- Success checkmark -->
           <div class="confirm-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
-          <h2>Booking Confirmed!</h2>
-          <p>Thank you for choosing Sunset Shores. A confirmation email will be sent shortly.</p>
+          <h2>Payment Successful!</h2>
+          <p style="font-size:1rem; color:var(--green); font-weight:500; margin-bottom:.5rem;">Your reservation is confirmed.</p>
+          <p>Thank you for choosing Sunset Shores Coastal Condominiums.<br>A confirmation email with your receipt has been sent to your email address.</p>
+
+          <!-- Reservation number -->
           <div class="confirm-id" id="confirm-res-id"></div>
+
+          <!-- Details box -->
           <div class="confirm-details" id="confirm-details"></div>
-          <a href="index.html" class="btn btn-ocean" style="margin-top:1rem;">Return to Website</a>
+
+          <!-- Email notice -->
+          <div style="background:var(--ocean-deep); border-radius:4px; padding:1.2rem 1.5rem; margin:1.2rem 0; text-align:left; display:flex; gap:1rem; align-items:flex-start;">
+            <svg viewBox="0 0 24 24" style="width:22px; height:22px; stroke:#A8CDD9; fill:none; stroke-width:1.8; flex-shrink:0; margin-top:2px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg>
+            <div>
+              <p style="color:var(--white); font-size:.88rem; font-weight:500; margin-bottom:.25rem;">Email Receipt Sent</p>
+              <p style="color:rgba(255,255,255,.65); font-size:.8rem; font-weight:300; line-height:1.6;">A detailed receipt including your reservation number, stay dates, itemized charges and payment confirmation has been sent to your email address. Please check your inbox and spam folder.</p>
+            </div>
+          </div>
+
+          <!-- Security deposit notice -->
+          <div id="deposit-notice" style="background:#edf7f2; border-radius:4px; padding:1rem 1.2rem; margin-bottom:1.2rem; text-align:left; display:flex; gap:.75rem; align-items:flex-start;">
+            <svg viewBox="0 0 24 24" style="width:18px; height:18px; stroke:#2E7D5A; fill:none; stroke-width:2; flex-shrink:0; margin-top:2px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <p style="color:#2E7D5A; font-size:.82rem; line-height:1.6;"><strong>Security Deposit:</strong> Your security deposit is fully refundable and will be returned to your card within 5–7 business days after checkout, provided no damages occur.</p>
+          </div>
+
+          <!-- Contact info -->
+          <div style="border-top:1px solid var(--sand-mid); padding-top:1.2rem; margin-top:.5rem;">
+            <p style="font-size:.8rem; color:var(--text-light); line-height:1.8;">
+              Questions? Contact us at <a href="tel:+18056843682" style="color:var(--ocean);">(805) 684-3682</a> or <a href="mailto:accounting@sunsetshorescarp.com" style="color:var(--ocean);">accounting@sunsetshorescarp.com</a>
+            </p>
+          </div>
+
+          <a href="index.html" class="btn btn-ocean" style="margin-top:1.5rem; display:inline-block;">Return to Website</a>
         </div>
       </div>
     </div>
@@ -346,45 +383,12 @@
  */
 const PROXY_URL = '/.netlify/functions/rms';
 
-/**
- * STRIPE CONFIG
- * Publishable key is safe to expose in the browser — that's what it's for.
- * The Secret key lives only in the Netlify function (charge.js) as an
- * environment variable, never here.
- */
-const STRIPE_PUBLISHABLE_KEY = 'pk_test_51TjD1NQ2L6OFhhCuP5mgNmLwVqE5q6ITyEd2gjEZKIXGQFXLlajDQ7OD79Sru3mq2QrSHweAAf04qAUtUQYqNBWe003aDpSfsI';
-const CHARGE_PROXY_URL = '/.netlify/functions/charge';
-
-const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
-const stripeElements = stripe.elements();
-const cardElement = stripeElements.create('card', {
-  style: {
-    base: {
-      fontSize: '15px',
-      fontFamily: '"DM Sans", sans-serif',
-      color: '#1A1A1A',
-      '::placeholder': { color: '#7A7A7A' }
-    },
-    invalid: { color: '#C0392B' }
-  }
-});
-// Mount card only when Step 3 becomes visible — prevents errors on page load
-let cardMounted = false;
-function mountCardIfNeeded() {
-  if (!cardMounted && document.getElementById('stripe-card-element')) {
-    cardElement.mount('#stripe-card-element');
-    cardElement.on('change', function(event) {
-      const displayError = document.getElementById('stripe-card-errors');
-      if (displayError) displayError.textContent = event.error ? event.error.message : '';
-    });
-    cardMounted = true;
-  }
-}
+// Payment processed directly by RMS — no third-party payment processor needed
 
 // ── STATE ────────────────────────────────────────────────────────────────────
 let state = {
   arrivalDate: '', departureDate: '', adults: 2, children: 0, bedrooms: '',
-  units: [], selectedUnit: null, guest: {}, card: {}, paymentMethodId: null
+  units: [], selectedUnit: null, guest: {}, card: {}
 };
 
 // ── HELPERS ──────────────────────────────────────────────────────────────────
@@ -435,7 +439,6 @@ function goToStep(n) {
     t.className = 'step-tab' + (i < n ? ' done' : i === n ? ' active' : '');
   });
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  if (n === 3) mountCardIfNeeded();
 }
 
 // ── STEP 1: SEARCH ───────────────────────────────────────────────────────────
@@ -450,6 +453,9 @@ async function searchUnits() {
   if (!departure) return showAlert('search-alert', 'Please select a check-out date.');
   if (new Date(arrival) >= new Date(departure)) return showAlert('search-alert', 'Check-out must be after check-in.');
   if (new Date(arrival) < new Date(new Date().toDateString())) return showAlert('search-alert', 'Check-in must be in the future.');
+
+  const stayNights = Math.round((new Date(departure) - new Date(arrival)) / (1000 * 60 * 60 * 24));
+  if (stayNights > 30) return showAlert('search-alert', `Online booking is available for stays of 30 nights or less. For longer stays, please contact Velo Property Management directly at <a href="tel:+18056843682" style="color:var(--ocean);">(805) 684-3682</a> or <a href="mailto:accounting@sunsetshorescarp.com" style="color:var(--ocean);">accounting@sunsetshorescarp.com</a>.`);
 
   hideAlert('search-alert');
   Object.assign(state, { arrivalDate: arrival, departureDate: departure, adults, children, bedrooms });
@@ -611,9 +617,71 @@ function selectUnit(idx) {
   updateSummary();
 }
 
-function chooseUnit(idx) {
+async function chooseUnit(idx) {
   state.selectedUnit = state.units[idx];
   updateSummary();
+
+  // Show loading on the button
+  const btn = document.querySelector(`#unit-${idx} .btn-choose`);
+  if (btn) { btn.disabled = true; btn.textContent = 'Getting quote…'; }
+
+  // Do a Select Unit search to get exact charges, taxes and grand total
+  try {
+    const unit = state.selectedUnit;
+    const quotePath = `/unit/search?arrivalDate=${fmtDate(state.arrivalDate)}&departureDate=${fmtDate(state.departureDate)}&unitId=${unit.unitId}&reservationStatus=A&numberOfAdults=${state.adults}&numberOfChildren=${state.children}`;
+    const res = await fetch(`${PROXY_URL}?path=${encodeURIComponent(quotePath)}`);
+    const xml = await res.text();
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(xml, 'text/xml');
+    const u = doc.querySelector('unit');
+
+    if (u) {
+      // Parse all charges from the quote
+      const CHARGE_LABELS = {
+        'PF': 'Processing Fee', 'CF': 'Cleaning Fee', 'CLEAN': 'Cleaning Fee',
+        'PARK': 'Parking Fee', 'PET': 'Pet Fee', 'LINEN': 'Linen Fee',
+        'TAX': 'Tax', 'CITY': 'City Tax', 'STATE': 'State Tax',
+        '1': 'Cleaning Fee', '2': 'Processing Fee', '3': 'Resort Fee',
+        '4': 'Linen Fee', '5': 'Cleaning Fee', '6': 'Resort Fee'
+      };
+      const charges = [];
+      doc.querySelectorAll('charge').forEach(c => {
+        const id = c.querySelector('id')?.textContent || '';
+        const desc = c.querySelector('longDescription')?.textContent ||
+                     c.querySelector('description')?.textContent ||
+                     c.querySelector('priceText')?.textContent ||
+                     CHARGE_LABELS[id] || `Fee`;
+        charges.push({
+          id,
+          description: desc,
+          amount:  c.querySelector('amount')?.textContent || '0',
+          enabled: c.querySelector('enabled')?.textContent || 'true',
+          option:  c.querySelector('option')?.textContent || 'R'
+        });
+      });
+
+      // Update unit with real pricing from quote
+      state.selectedUnit = {
+        ...unit,
+        guestRent:    u.querySelector('rateTotal')?.textContent || u.querySelector('rentStandardAmount')?.textContent || unit.guestRent,
+        taxTotal:     u.querySelector('taxTotal')?.textContent || '0',
+        tax1:         u.querySelector('tax1')?.textContent || '0',
+        tax2:         u.querySelector('tax2')?.textContent || '0',
+        tax3:         u.querySelector('tax3')?.textContent || '0',
+        secDeposit:   u.querySelector('securityDeposit')?.textContent || u.querySelector('SecurityDeposit')?.textContent || u.querySelector('security_deposit')?.textContent || '0',
+        depositDue:   u.querySelector('depositDue')?.textContent || u.querySelector('DepositDue')?.textContent || u.querySelector('deposit_due')?.textContent || '0',
+        grandTotal:   u.querySelector('grandTotal')?.textContent || unit.guestRent,
+        chargeAmount: u.querySelector('chargeAmount')?.textContent || '0',
+        charges
+      };
+      console.log('RMS deposit values - securityDeposit:', u.querySelector('securityDeposit')?.textContent, 'depositDue:', u.querySelector('depositDue')?.textContent, 'grandTotal:', u.querySelector('grandTotal')?.textContent);
+      updateSummary();
+    }
+  } catch(e) {
+    console.warn('Quote fetch failed, using search pricing:', e);
+  }
+
+  if (btn) { btn.disabled = false; btn.textContent = 'Choose Unit →'; }
   goToStep(3);
 }
 
@@ -631,10 +699,21 @@ function updateSummary() {
   if (unit) {
     html += `<div class="summary-row"><span class="summary-label">Unit</span><span class="summary-value">${unit.name}</span></div>`;
     html += `<div class="summary-row"><span class="summary-label">Base Rent</span><span class="summary-value">${currency(unit.guestRent)}</span></div>`;
-    html += `<div class="summary-row"><span class="summary-label">Taxes & Fees</span><span class="summary-value" style="color:var(--text-light); font-size:.78rem;">At confirmation</span></div>`;
-    html += `<div class="summary-row"><span class="summary-label">Security Deposit</span><span class="summary-value" style="color:var(--text-light); font-size:.78rem;">At confirmation</span></div>`;
-    html += `<div class="summary-total"><span class="summary-total-label">Base Rent</span><span class="summary-total-value">${currency(unit.guestRent)}</span></div>`;
-    html += `<p class="summary-deposit">Final total calculated at confirmation</p>`;
+    if (unit.charges && unit.charges.length > 0) {
+      unit.charges.forEach(ch => {
+        if (parseFloat(ch.amount) > 0 && ch.enabled !== 'false') {
+          const label = ch.description || ch.id || 'Fee';
+          html += `<div class="summary-row"><span class="summary-label">${label}</span><span class="summary-value">${currency(ch.amount)}</span></div>`;
+        }
+      });
+    } else if (parseFloat(unit.chargeAmount) > 0) {
+      html += `<div class="summary-row"><span class="summary-label">Fees</span><span class="summary-value">${currency(unit.chargeAmount)}</span></div>`;
+    }
+    if (parseFloat(unit.taxTotal) > 0) html += `<div class="summary-row"><span class="summary-label">Taxes</span><span class="summary-value">${currency(unit.taxTotal)}</span></div>`;
+    if (parseFloat(unit.secDeposit) > 0) html += `<div class="summary-row"><span class="summary-label">Security Deposit <span style="font-size:.65rem; color:var(--green); font-weight:400;">✓ Refundable</span></span><span class="summary-value">${currency(unit.secDeposit)}</span></div>`;
+    html += `<div class="summary-total"><span class="summary-total-label">Grand Total</span><span class="summary-total-value">${currency(unit.grandTotal || unit.guestRent)}</span></div>`;
+    if (parseFloat(unit.depositDue) > 0) html += `<div class="summary-row" style="margin-top:.5rem; padding-top:.5rem; border-top:1px solid var(--sand-mid);"><span class="summary-label" style="color:var(--coral); font-weight:500;">Deposit Due Now</span><span class="summary-value" style="color:var(--coral); font-weight:600;">${currency(unit.depositDue)}</span></div>`;
+    if (parseFloat(unit.grandTotal) > 0) html += `<p class="summary-deposit">Full amount due at booking: ${currency(unit.grandTotal)}</p>`;
   }
 
   document.getElementById('summary-content').innerHTML = html || '<p class="summary-empty">Select your dates to see pricing.</p>';
@@ -663,39 +742,36 @@ async function reviewBooking() {
   };
 
   const cardNameVal = document.getElementById('cardName').value.trim();
+  const cardNumberVal = document.getElementById('cardNumber').value.replace(/\s/g, '');
+  const cardExpiryVal = document.getElementById('cardExpiry').value.trim();
+  const cardCvvVal = document.getElementById('cardCvv').value.trim();
 
-  // Create a Stripe Payment Method from the card element — card details
-  // never leave the browser unencrypted; Stripe handles that entirely.
-  const continueBtn = document.querySelector('button[onclick="reviewBooking()"]');
-  if (continueBtn) { continueBtn.disabled = true; continueBtn.textContent = 'Validating card…'; }
+  if (!cardNameVal) return showAlert('guest-alert', 'Please enter the name on your card.');
+  if (cardNumberVal.length < 13) return showAlert('guest-alert', 'Please enter a valid card number.');
+  if (!cardExpiryVal.match(/^\d{2}-\d{4}$/)) return showAlert('guest-alert', 'Please enter expiry in MM-YYYY format.');
+  if (cardCvvVal.length < 3) return showAlert('guest-alert', 'Please enter your card security code.');
 
-  const { paymentMethod, error } = await stripe.createPaymentMethod({
-    type: 'card',
-    card: cardElement,
-    billing_details: {
-      name: cardNameVal,
-      email: state.guest.email,
-      address: {
-        line1: state.guest.addressLine1,
-        city: state.guest.city,
-        state: state.guest.state,
-        postal_code: state.guest.zipCode
-      }
-    }
-  });
-
-  if (continueBtn) { continueBtn.disabled = false; continueBtn.textContent = 'Review Booking →'; }
-
-  if (error) {
-    document.getElementById('stripe-card-errors').textContent = error.message;
-    return showAlert('guest-alert', 'There was a problem with your card details. Please check and try again.');
-  }
-
-  state.paymentMethodId = paymentMethod.id;
-  state.card = { name: cardNameVal, last4: paymentMethod.card.last4, brand: paymentMethod.card.brand };
+  state.card = {
+    name:   cardNameVal,
+    number: cardNumberVal,
+    expiry: cardExpiryVal,
+    cvv:    cardCvvVal,
+    last4:  cardNumberVal.slice(-4),
+    brand:  cardNumberVal.startsWith('4') ? 'Visa' : cardNumberVal.startsWith('5') ? 'Mastercard' : cardNumberVal.startsWith('3') ? 'Amex' : 'Card'
+  };
 
   const g = state.guest, unit = state.selectedUnit;
   const n = nights(state.arrivalDate, state.departureDate);
+
+  // Build itemized charges list for review screen
+  let chargesHtml = '';
+  if (unit.charges && unit.charges.length > 0) {
+    unit.charges.forEach(ch => {
+      if (parseFloat(ch.amount) > 0 && ch.enabled !== 'false') {
+        chargesHtml += `<br><strong style="color:var(--ocean-deep);">${ch.description || ch.id}:</strong> ${currency(ch.amount)}`;
+      }
+    });
+  }
 
   document.getElementById('review-content').innerHTML = `
     <div class="review-grid">
@@ -711,12 +787,23 @@ async function reviewBooking() {
       </div>
     </div>
     <div class="review-box" style="margin-bottom:1.2rem;">
+      <div class="review-box-label">Price Breakdown</div>
+      <p>
+        <strong style="color:var(--ocean-deep);">Base Rent:</strong> ${currency(unit.guestRent)}
+        ${chargesHtml}
+        <br><strong style="color:var(--ocean-deep);">Taxes:</strong> ${currency(unit.taxTotal)}
+        <br><strong style="color:var(--ocean-deep);">Security Deposit:</strong> ${currency(unit.secDeposit)} <span style="color:#2E7D5A; font-size:.78rem;">✓ Refundable</span>
+        <br><strong style="color:var(--ocean-deep); font-size:1rem;">Total: ${currency(unit.grandTotal)}</strong>
+        ${parseFloat(unit.depositDue) > 0 ? `<br><strong style="color:var(--coral);">Deposit Due Now: ${currency(unit.depositDue)}</strong>` : ''}
+      </p>
+    </div>
+    <div class="review-box" style="margin-bottom:1.2rem;">
       <div class="review-box-label">Payment</div>
-      <p>${state.card.brand.toUpperCase()} ending in <strong>${state.card.last4}</strong></p>
-      <p style="color:var(--coral); font-size:.82rem; margin-top:.4rem;">Deposit charged now: ${currency(unit.depositDue)} of ${currency(unit.grandTotal)} total</p>
+      <p>${state.card.brand} ending in <strong>${state.card.last4}</strong></p>
+      <p style="color:var(--coral); font-size:.82rem; margin-top:.4rem;">Total charged: ${currency(unit.grandTotal)} (includes refundable security deposit of ${currency(unit.secDeposit)})</p>
     </div>
     <div class="alert alert-info visible">
-      By confirming you agree to Sunset Shores' <a href="https://sunsetshorescarp.com/rental-policies/" target="_blank" style="color:var(--ocean);">rental policies</a>. The deposit of ${currency(unit.depositDue)} will be charged immediately.
+      By confirming you agree to Sunset Shores' <a href="policies.html" target="_blank" style="color:var(--ocean);">rental policies</a>. The full amount of ${currency(unit.grandTotal)} will be charged to your card. The security deposit of ${currency(unit.secDeposit)} is refundable after your stay, subject to no damages.
     </div>`;
 
   goToStep(4);
@@ -728,35 +815,17 @@ async function submitBooking() {
 
   document.getElementById('confirm-buttons').style.display = 'none';
   document.getElementById('booking-loader').style.display = 'flex';
-  document.querySelector('#booking-loader p').textContent = 'Charging deposit securely via Stripe…';
+  document.querySelector('#booking-loader p').textContent = 'Submitting your reservation…';
   hideAlert('confirm-alert');
 
   try {
-    // ── STEP 1: Charge the deposit through Stripe ──────────────────────────
-    const chargeRes = await fetch(CHARGE_PROXY_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        paymentMethodId: state.paymentMethodId,
-        amount: Math.round(parseFloat(unit.depositDue || unit.guestRent || 0) * 100), // cents
-        currency: 'usd',
-        receiptEmail: g.email,
-        description: `Sunset Shores deposit — ${unit.name}, ${fmtDate(state.arrivalDate)} to ${fmtDate(state.departureDate)}`
-      })
-    });
+    // ── Send reservation directly to RMS — RMS handles card processing ─────
+    document.querySelector('#booking-loader p').textContent = 'Submitting your reservation…';
 
-    const chargeResult = await chargeRes.json();
-
-    if (!chargeRes.ok || !chargeResult.success) {
-      throw new Error(chargeResult.message || 'Your card could not be charged. Please check your details or try a different card.');
-    }
-
-    // ── STEP 2: Send the reservation to RMS, marked as already paid ────────
-    document.querySelector('#booking-loader p').textContent = 'Payment successful — submitting your reservation…';
-
+    // Build charge params from the quote — EVERY charge must be returned
     let chargeParams = '';
     (unit.charges || []).forEach(ch => {
-      chargeParams += `&charge.id=${encodeURIComponent(ch.id)}&charge.amount=${ch.amount}&charge.enabled=${ch.enabled || 'true'}`;
+      chargeParams += `&charge.id=${encodeURIComponent(ch.id)}&charge.amount=${ch.amount}&charge.enabled=${ch.enabled}`;
     });
 
     const p = new URLSearchParams({
@@ -776,18 +845,21 @@ async function submitBooking() {
       'reservation.homePhone':        g.homePhone.replace(/\D/g, ''),
       'reservation.email':            g.email,
       'reservation.notePrefix':       'Guest Comment:',
-      'reservation.note':             (g.note ? g.note + ' ' : '') + `[Paid via Stripe — charge ${chargeResult.chargeId}]`,
+      'reservation.note':             (g.note ? g.note + ' ' : '') + `Booked online`,
       'reservation.guestRent':        unit.guestRent  || '0',
       'reservation.taxTotal':         unit.taxTotal   || '0',
-      'reservation.tax1':             '0.0',
-      'reservation.tax2':             unit.taxTotal   || '0',
-      'reservation.tax3':             '0.0',
+      'reservation.tax1':             unit.tax1       || '0',
+      'reservation.tax2':             unit.tax2       || '0',
+      'reservation.tax3':             unit.tax3       || '0',
       'reservation.securityDeposit':  unit.secDeposit || '0',
-      'reservation.grandTotal':       unit.grandTotal || '0',
+      'reservation.grandTotal':       unit.grandTotal || unit.guestRent || '0',
       'reservation.depositDue':       unit.depositDue || '0',
       'reservation.depositType':      'CREDITCARD',
-      'reservation.operator':         'WEB'
-      // Note: no raw card fields sent to RMS — payment was already captured via Stripe above.
+      'reservation.operator':         'WEB',
+      'creditCard.name':              c.name,
+      'creditCard.number':            c.number,
+      'creditCard.expiration':        c.expiry,
+      'creditCard.securityCode':      c.cvv
     });
 
     const bookPath = `/unit/book?${p.toString()}${chargeParams}`;
@@ -798,15 +870,19 @@ async function submitBooking() {
 
     if (booked === 'true') {
       document.getElementById('confirm-res-id').textContent = `Reservation #${resId}`;
+      if (parseFloat(unit.secDeposit) <= 0) {
+        const dn = document.getElementById('deposit-notice');
+        if (dn) dn.style.display = 'none';
+      }
       document.getElementById('confirm-details').innerHTML = `
-        <p style="font-size:.88rem; line-height:1.9; color:var(--text-mid); font-weight:300;">
-          <strong style="color:var(--ocean-deep);">Unit:</strong> ${unit.name}<br>
-          <strong style="color:var(--ocean-deep);">Check-in:</strong> ${fmtDisplay(state.arrivalDate)}<br>
-          <strong style="color:var(--ocean-deep);">Check-out:</strong> ${fmtDisplay(state.departureDate)}<br>
-          <strong style="color:var(--ocean-deep);">Guest:</strong> ${g.firstName} ${g.lastName}<br>
-          <strong style="color:var(--ocean-deep);">Confirmation sent to:</strong> ${g.email}<br>
-          <strong style="color:var(--ocean-deep);">Payment:</strong> ${currency(unit.depositDue || unit.guestRent)} charged to ${c.brand.toUpperCase()} ending in ${c.last4}
-        </p>`;
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:.6rem 1.5rem; font-size:.88rem; line-height:1.8; color:var(--text-mid); font-weight:300; text-align:left;">
+          <div><strong style="color:var(--ocean-deep); display:block; font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; margin-bottom:.1rem;">Unit</strong>${unit.name}</div>
+          <div><strong style="color:var(--ocean-deep); display:block; font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; margin-bottom:.1rem;">Guest</strong>${g.firstName} ${g.lastName}</div>
+          <div><strong style="color:var(--ocean-deep); display:block; font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; margin-bottom:.1rem;">Check-in</strong>${fmtDisplay(state.arrivalDate)}</div>
+          <div><strong style="color:var(--ocean-deep); display:block; font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; margin-bottom:.1rem;">Check-out</strong>${fmtDisplay(state.departureDate)}</div>
+          <div><strong style="color:var(--ocean-deep); display:block; font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; margin-bottom:.1rem;">Email Receipt</strong>${g.email}</div>
+          <div><strong style="color:var(--ocean-deep); display:block; font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; margin-bottom:.1rem;">Payment</strong>${c.brand} ending in ${c.last4}<br><span style="color:var(--coral); font-weight:500;">${currency(unit.grandTotal)} charged</span></div>
+        </div>`;
       goToStep(5);
     } else {
       throw new Error(msg || 'Booking failed. Please check your details and try again.');

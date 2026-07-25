@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Rentals — Sunset Shores Carpinteria</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --sand: #F5EDD8; --sand-light: #FBF7EE; --sand-mid: #E8D9B8;
+    --ocean: #1C4F6B; --ocean-deep: #0F2F42; --ocean-mid: #2E7A9E; --ocean-light: #A8CDD9;
+    --coral: #D4614B; --white: #FFFFFF;
+    --text-dark: #1A1A1A; --text-mid: #4A4A4A; --text-light: #7A7A7A;
+    --font-serif: 'Cormorant Garamond', Georgia, serif;
+    --font-sans: 'DM Sans', sans-serif;
+  }
+  body { font-family: var(--font-sans); background: var(--sand-light); color: var(--text-dark); }
+
+  nav { background: var(--ocean-deep); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+  .nav-logo { display: flex; align-items: center; text-decoration: none; }
+  .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+  .nav-links a { color: rgba(255,255,255,.7); text-decoration: none; font-size: .82rem; letter-spacing: .06em; transition: color .2s; }
+  .nav-links a:hover { color: var(--white); }
+  .nav-book { background: var(--coral); color: var(--white) !important; padding: .5rem 1.2rem; border-radius: 2px; }
+
+  .page-header { background: linear-gradient(135deg, var(--ocean-deep) 0%, var(--ocean) 100%); padding: 3.5rem 2rem; text-align: center; }
+  .page-header h1 { font-family: var(--font-serif); font-size: clamp(2.2rem, 5vw, 3.5rem); font-weight: 300; color: var(--white); margin-bottom: .5rem; }
+  .page-header h1 em { font-style: italic; color: #F4B07A; }
+  .page-header p { color: rgba(255,255,255,.65); font-size: .92rem; font-weight: 300; max-width: 500px; margin: 0 auto; }
+
+  .filter-bar { background: var(--white); border-bottom: 1px solid var(--sand-mid); padding: 1rem 2rem; display: flex; gap: .6rem; flex-wrap: wrap; justify-content: center; }
+  .filter-btn { background: none; border: 1px solid var(--sand-mid); padding: .45rem 1rem; border-radius: 2px; font-family: var(--font-sans); font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; transition: all .2s; color: var(--text-mid); }
+  .filter-btn:hover, .filter-btn.active { background: var(--ocean-deep); color: var(--white); border-color: var(--ocean-deep); }
+
+  .content-wrap { max-width: 1200px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+  .units-count { font-size: .78rem; color: var(--text-light); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 1.5rem; }
+  .units-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+
+  .unit-card { background: var(--white); border: 1px solid var(--sand-mid); border-radius: 4px; overflow: hidden; transition: transform .3s, box-shadow .3s; }
+  .unit-card:hover { transform: translateY(-4px); box-shadow: 0 20px 48px rgba(15,47,66,.12); }
+
+  .unit-gallery { position: relative; height: 240px; background: var(--sand); overflow: hidden; }
+  .gallery-slides { display: flex; height: 100%; transition: transform .4s ease; }
+  .gallery-slide { min-width: 100%; height: 100%; background-size: cover; background-position: center; flex-shrink: 0; }
+  .gallery-prev, .gallery-next { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(15,47,66,.6); border: none; color: var(--white); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .2s; z-index: 2; }
+  .unit-gallery:hover .gallery-prev, .unit-gallery:hover .gallery-next { opacity: 1; }
+  .gallery-prev { left: .6rem; }
+  .gallery-next { right: .6rem; }
+  .gallery-prev svg, .gallery-next svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+  .gallery-dots { position: absolute; bottom: .6rem; left: 50%; transform: translateX(-50%); display: flex; gap: .3rem; z-index: 2; }
+  .gallery-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.5); transition: background .2s; cursor: pointer; }
+  .gallery-dot.active { background: var(--white); }
+  .unit-badge { position: absolute; top: .8rem; left: .8rem; background: var(--ocean-deep); color: var(--white); font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; padding: .25rem .65rem; border-radius: 2px; z-index: 2; }
+
+  .unit-body { padding: 1.3rem; }
+  .unit-type { font-size: .7rem; letter-spacing: .15em; text-transform: uppercase; color: var(--coral); margin-bottom: .4rem; }
+  .unit-name { font-family: var(--font-serif); font-size: 1.4rem; font-weight: 400; color: var(--ocean-deep); margin-bottom: .6rem; }
+  .unit-desc { font-size: .85rem; color: var(--text-mid); line-height: 1.7; font-weight: 300; margin-bottom: 1rem; }
+  .unit-features { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1.1rem; }
+  .feature-tag { background: var(--sand); color: var(--ocean-deep); font-size: .68rem; padding: .25rem .6rem; border-radius: 2px; letter-spacing: .06em; }
+  .unit-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 1rem; border-top: 1px solid var(--sand-mid); }
+  .unit-price { font-family: var(--font-serif); font-size: 1.3rem; color: var(--ocean-deep); font-weight: 400; }
+  .unit-price span { font-family: var(--font-sans); font-size: .72rem; color: var(--text-light); font-weight: 300; }
+  .btn-book { background: var(--ocean-deep); color: var(--white); padding: .6rem 1.3rem; border-radius: 2px; text-decoration: none; font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; transition: background .2s; }
+  .btn-book:hover { background: var(--ocean); }
+
+  footer { background: var(--ocean-deep); color: rgba(255,255,255,.55); padding: 2.5rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem; }
+  .footer-logo { font-family: var(--font-serif); font-size: 1.2rem; font-weight: 300; color: var(--white); }
+  .footer-copy { font-size: .75rem; color: rgba(255,255,255,.3); }
+
+  @media (max-width: 900px) { .units-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 580px) { .units-grid { grid-template-columns: 1fr; } nav { padding: 1rem 1.2rem; } .nav-links { display: none; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">
+    <img src="https://sunsetshorescarp.com/wp-content/uploads/Sunset Shores v2-03-1.png" alt="Sunset Shores" style="height:62px; width:auto; object-fit:contain; filter:brightness(0) invert(1);" onerror="this.style.display='none'">
+  </a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="rentals.html">Rentals</a>
+    <a href="rates.html">Rates</a>
+    <a href="area-guide.html">Area Guide</a>
+    <a href="contact.html">Contact</a>
+    <a href="booking.html" class="nav-book">Book Now</a>
+    <a href="https://www.velo-management.com" target="_blank" style="padding-left:.8rem; border-left:1px solid rgba(255,255,255,.2);">
+      <img src="https://lirp.cdn-website.com/6001b850/dms3rep/multi/opt/Color-Logo_Velo-Managment-06ef0015-240w.png" alt="Velo Management" style="height:44px; width:auto; filter:brightness(0) invert(1);" onerror="this.style.display='none'">
+    </a>
+  </div>
+</nav>
+
+<div class="page-header">
+  <h1>Our <em>Rentals</em></h1>
+  <p>20 unique condos steps from Carpinteria State Beach — each with its own character</p>
+</div>
+
+<div class="filter-bar">
+  <button class="filter-btn active" data-filter="all">All Units</button>
+  <button class="filter-btn" data-filter="studio">Studio</button>
+  <button class="filter-btn" data-filter="1bed">1 Bedroom</button>
+  <button class="filter-btn" data-filter="2bed">2 Bedrooms</button>
+  <button class="filter-btn" data-filter="patio">Private Patio</button>
+  <button class="filter-btn" data-filter="balcony">Balcony</button>
+  <button class="filter-btn" data-filter="ground">Ground Floor</button>
+  <button class="filter-btn" data-filter="upper">Upper Floor</button>
+</div>
+
+<div class="content-wrap">
+  <p class="units-count" id="units-count">Showing all 20 units</p>
+  <div class="units-grid" id="units-grid"></div>
+</div>
+
+<footer>
+  <div class="footer-logo">Sunset Shores</div>
+  <p class="footer-copy">&copy; 2026 Sunset Shores Coastal Condominiums &nbsp;·&nbsp; 4980 Sandyland Rd, Carpinteria CA 93013</p>
+</footer>
+
+<script>
+const UNITS = [
+  {
+    num: '104', badge: '2 Bedrooms', filter: 'upper 2bed',
+    type: '2-Bedroom · Sleeps 6', name: 'Spacious Retreat #104',
+    desc: 'Generous two-bedroom unit with multiple living areas, fully equipped kitchen and comfortable furnishings — perfect for families or groups.',
+    tags: ['Full Kitchen','2 Bedrooms','Wi-Fi','Pool Access'],
+    price: 'From $225',
+    photos: [
+      'images/units/104/04_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Living_room-DSC06835.jpg',
+      'images/units/104/09_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Kitchen-DSC06850.jpg',
+      'images/units/104/11_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bedroom-DSC06856.jpg',
+      'images/units/104/15_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bathroom-DSC06886.jpg',
+      'images/units/104/02_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Exterior-DSC06829.jpg'
+    ]
+  },
+  {
+    num: '115', badge: '2 Bedrooms', filter: 'upper 2bed',
+    type: '2-Bedroom · Sleeps 6', name: 'Beach Escape #115',
+    desc: 'Bright two-bedroom unit with spacious living room, fully equipped kitchen and dining area. Great for families wanting room to spread out.',
+    tags: ['Full Kitchen','2 Bedrooms','Dining Area','Pool Access'],
+    price: 'From $225',
+    photos: [
+      'images/units/115/02_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Living_room-DSC04706.jpg',
+      'images/units/115/06_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Kitchen-DSC04724.jpg',
+      'images/units/115/10_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bedroom-DSC04758.jpg',
+      'images/units/115/12_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bathroom-DSC04733.jpg',
+      'images/units/115/09_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Dining_room-DSC04718.jpg'
+    ]
+  },
+  {
+    num: '122', badge: 'Ground Floor', filter: 'ground 1bed',
+    type: '1-Bedroom · Sleeps 4', name: 'Garden View #122',
+    desc: 'Comfortable ground-floor unit with courtyard garden views, full kitchen and easy access to pool and hot tub.',
+    tags: ['Full Kitchen','Ground Floor','Courtyard View','Hot Tub'],
+    price: 'From $165',
+    photos: [
+      'images/units/122/02_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Living_room-DSC07456.jpg',
+      'images/units/122/05_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Kitchen-DSC07471.jpg',
+      'images/units/122/07_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bedroom-DSC07483.jpg',
+      'images/units/122/09_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bathroom-DSC07477.jpg',
+      'images/units/122/01_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Exterior-DSC07495.jpg'
+    ]
+  },
+  {
+    num: '125', badge: '2 Bedrooms', filter: '2bed upper',
+    type: '2-Bedroom · Sleeps 6', name: 'Coastal Haven #125',
+    desc: 'Generous two-bedroom upper unit with spacious living areas, full kitchen and multiple bedroom configurations perfect for larger groups.',
+    tags: ['Full Kitchen','2 Bedrooms','Upper Floor','Pool Access'],
+    price: 'From $225',
+    photos: [
+      'images/units/125/02_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Living_room-DSC07504.jpg',
+      'images/units/125/06_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Kitchen-DSC07516.jpg',
+      'images/units/125/09_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bedroom-DSC07525.jpg',
+      'images/units/125/15_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bathroom-DSC07546.jpg'
+    ]
+  },
+  {
+    num: '126', badge: '2 Bedrooms', filter: '2bed upper',
+    type: '2-Bedroom · Sleeps 6', name: 'Sandyland Suite #126',
+    desc: 'Spacious two-bedroom unit with modern kitchen, two bathrooms and a welcoming foyer. Ideal for families or two couples traveling together.',
+    tags: ['Full Kitchen','2 Bedrooms','2 Bathrooms','Wi-Fi'],
+    price: 'From $235',
+    photos: [
+      'images/units/126/19_4950_Sandyland_Rd_Carpinteria_CA_93013_USA-Living_room-DSC09633.jpg',
+      'images/units/126/20_4950_Sandyland_Rd_Carpinteria_CA_93013_USA-Kitchen-DSC09630.jpg',
+      'images/units/126/25_4950_Sandyland_Rd_Carpinteria_CA_93013_USA-Bedroom-DSC09660.jpg',
+      'images/units/126/29_4950_Sandyland_Rd_Carpinteria_CA_93013_USA-Bathroom-DSC09651.jpg',
+      'images/units/126/17_4950_Sandyland_Rd_Carpinteria_CA_93013_USA-Foyer-DSC09636.jpg'
+    ]
+  },
+  {
+    num: '127', badge: 'Ground Floor', filter: 'ground 1bed',
+    type: '1-Bedroom · Sleeps 4', name: 'Seaside Cottage #127',
+    desc: 'Cozy ground-floor unit with dining room, full kitchen and comfortable coastal furnishings just steps from the pool and courtyard.',
+    tags: ['Full Kitchen','Dining Room','Ground Floor','Pool Steps Away'],
+    price: 'From $165',
+    photos: [
+      'images/units/127/01_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Living_room-DSC05792.jpg',
+      'images/units/127/04_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Kitchen-DSC05798.jpg',
+      'images/units/127/07_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bedroom-DSC05816.jpg',
+      'images/units/127/09_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bathroom-DSC05825.jpg',
+      'images/units/127/06_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Dining_room-DSC05804.jpg'
+    ]
+  },
+  {
+    num: '128', badge: 'Ground Floor', filter: 'ground 1bed',
+    type: '1-Bedroom · Sleeps 4', name: 'Tropical Hideaway #128',
+    desc: 'Hawaiian-themed ground-floor unit with tropical décor, travertine walk-in shower with rain head, and direct courtyard access.',
+    tags: ['Full Kitchen','Walk-in Shower','Wi-Fi','Pool Access'],
+    price: 'From $165',
+    photos: [
+      'images/units/128/02_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Living_room-DSC05129.jpg',
+      'images/units/128/04_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Kitchen-DSC05138.jpg',
+      'images/units/128/07_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bedroom-DSC05159.jpg',
+      'images/units/128/09_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bathroom-DSC05153.jpg',
+      'images/units/128/01_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Exterior-DSC05120.jpg'
+    ]
+  },
+  {
+    num: '131', badge: 'Courtyard View', filter: 'ground 1bed',
+    type: '1-Bedroom · Sleeps 4', name: 'Courtyard Condo #131',
+    desc: 'Comfortable ground-floor condo overlooking the lush landscaped courtyard with full kitchen and easy access to pool and hot tub.',
+    tags: ['Full Kitchen','Courtyard View','Cable TV','Heated Pool'],
+    price: 'From $165',
+    photos: [
+      'images/units/131/04_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Living_room-DSC06928.jpg',
+      'images/units/131/05_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Kitchen-DSC06934.jpg',
+      'images/units/131/08_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bedroom-DSC06949.jpg',
+      'images/units/131/09_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bathroom-DSC06952.jpg',
+      'images/units/131/01_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Exterior-DSC06913.jpg'
+    ]
+  },
+  {
+    num: '133', badge: 'Pool Side', filter: 'ground 1bed',
+    type: '1-Bedroom · Sleeps 4', name: 'Poolside Retreat #133',
+    desc: 'Bright and airy unit just steps from the heated pool and hot tub. Full kitchen, comfortable bedroom and relaxed coastal style throughout.',
+    tags: ['Full Kitchen','Pool Steps Away','Wi-Fi','Hot Tub'],
+    price: 'From $170',
+    photos: [
+      'images/units/133/02_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Living_room-DSC05753.jpg',
+      'images/units/133/05_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Kitchen-DSC05780.jpg',
+      'images/units/133/07_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bedroom-DSC05771.jpg',
+      'images/units/133/09_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bathroom-DSC05762.jpg',
+      'images/units/133/01_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Exterior-DSC05726.jpg'
+    ]
+  },
+  {
+    num: '135', badge: 'Upper Floor', filter: 'upper 1bed',
+    type: '1-Bedroom · Sleeps 4', name: 'Sunset Suite #135',
+    desc: 'Upper-floor unit with elevated views over the property, full kitchen and a peaceful coastal atmosphere perfect for couples or small families.',
+    tags: ['Full Kitchen','Upper Floor','Wi-Fi','Pool Access'],
+    price: 'From $175',
+    photos: [
+      'images/units/135/02_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Living_room-DSC06964.jpg',
+      'images/units/135/05_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Kitchen-DSC06976.jpg',
+      'images/units/135/07_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bedroom-DSC06988.jpg',
+      'images/units/135/09_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bathroom-DSC06994.jpg',
+      'images/units/135/01_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Exterior-DSC07003.jpg'
+    ]
+  },
+  {
+    num: '136', badge: 'Private Patio', filter: 'patio ground 1bed',
+    type: '1-Bedroom · Sleeps 4', name: 'Garden Patio #136',
+    desc: 'Charming unit with a private brick patio, BBQ grill and beautiful garden views — perfect for morning coffee and evening dining outdoors.',
+    tags: ['Full Kitchen','Private Patio','BBQ Grill','Pool Access'],
+    price: 'From $175',
+    photos: [
+      'images/units/136/living room_.JPG',
+      'images/units/136/136 kitchen_.JPG',
+      'images/units/136/136 bed_.JPG',
+      'images/units/136/136 bath.jpeg',
+      'images/units/136/136 patio_.JPG'
+    ]
+  },
+  {
+    num: '201', badge: 'Ocean Views', filter: 'upper balcony 1bed',
+    type: '1-Bedroom · Sleeps 4', name: 'Ocean View #201',
+    desc: 'Upper-floor unit with stunning ocean and beach views from the balcony. Watch the waves and sunsets from the comfort of your own private outdoor space.',
+    tags: ['Full Kitchen','Ocean Balcony','Beach Views','Hot Tub'],
+    price: 'From $200',
+    photos: [
+      'images/units/201/06_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Living_room-DSC05051.jpg',
+      'images/units/201/08_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Kitchen-DSC05069.jpg',
+      'images/units/201/12_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bedroom-DSC05106.jpg',
+      'images/units/201/15_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bathroom-DSC05078.jpg',
+      'images/units/201/01_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Exterior-DSC05045.jpg'
+    ]
+  },
+  {
+    num: '203', badge: 'Premium Unit', filter: 'upper balcony 1bed',
+    type: '1-Bedroom · Sleeps 4', name: 'Premium Condo #203',
+    desc: 'Beautifully appointed upper-floor unit with premium finishes, comfortable living spaces and spectacular coastal surroundings.',
+    tags: ['Full Kitchen','Premium Finishes','Wi-Fi','Pool Access'],
+    price: 'From $185',
+    photos: [
+      'images/units/203/DSC02223_4_5.jpg',
+      'images/units/203/DSC02229_30_31.jpg',
+      'images/units/203/DSC02235_6_7.jpg',
+      'images/units/203/DSC02241_2_3.jpg',
+      'images/units/203/DSC02247_8_9.jpg'
+    ]
+  },
+  {
+    num: '207', badge: 'Upper Floor', filter: 'upper 1bed',
+    type: '1-Bedroom · Sleeps 4', name: 'Coastal Perch #207',
+    desc: 'Light-filled upper-floor unit with modern kitchen, comfortable bedroom and breezy coastal atmosphere throughout.',
+    tags: ['Full Kitchen','Upper Floor','Cable TV','Heated Pool'],
+    price: 'From $175',
+    photos: [
+      'images/units/207/03_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Living_room-DSC05879.jpg',
+      'images/units/207/05_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Kitchen-DSC05867.jpg',
+      'images/units/207/08_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bedroom-DSC05855.jpg',
+      'images/units/207/10_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bathroom-DSC05861.jpg',
+      'images/units/207/01_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Exterior-DSC05888.jpg'
+    ]
+  },
+  {
+    num: '215', badge: '2 Bedrooms', filter: '2bed upper',
+    type: '2-Bedroom · Sleeps 6', name: 'Family Suite #215',
+    desc: 'Roomy two-bedroom upper unit with full kitchen, dining room and multiple bedrooms — the perfect home base for a family beach vacation.',
+    tags: ['Full Kitchen','2 Bedrooms','Dining Room','Wi-Fi'],
+    price: 'From $225',
+    photos: [
+      'images/units/215/02_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Living_room-DSC05189.jpg',
+      'images/units/215/05_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Kitchen-DSC05204.jpg',
+      'images/units/215/08_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bedroom-DSC05222.jpg',
+      'images/units/215/11_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bathroom-DSC05210.jpg',
+      'images/units/215/07_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Dining_room-DSC05198.jpg'
+    ]
+  },
+  {
+    num: '216', badge: '2 Bedrooms', filter: '2bed upper balcony',
+    type: '2-Bedroom · Sleeps 6', name: 'Sunset View #216',
+    desc: 'Spacious two-bedroom upper unit with multiple living areas, modern kitchen and a private balcony — ideal for larger groups or extended stays.',
+    tags: ['Full Kitchen','2 Bedrooms','Balcony','Pool Access'],
+    price: 'From $235',
+    photos: [
+      'images/units/216/03_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Living_room-DSC07561.jpg',
+      'images/units/216/07_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Kitchen-DSC07570.jpg',
+      'images/units/216/10_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bedroom-DSC07579.jpg',
+      'images/units/216/14_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bathroom-DSC07591.jpg',
+      'images/units/216/01_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Exterior-DSC07552.jpg'
+    ]
+  },
+  {
+    num: '221', badge: 'Ocean Balcony', filter: 'upper balcony 1bed',
+    type: '1-Bedroom · Sleeps 4', name: 'Coastal Retreat #221',
+    desc: 'Bright upper-floor unit with beamed ceilings, updated kitchen with granite counters, and a private balcony with ocean views.',
+    tags: ['Full Kitchen','Ocean Balcony','Cable TV','Hot Tub'],
+    price: 'From $200',
+    photos: [
+      'images/units/221/15_4950_Sandyland_Rd_unit_221_Carpinteria_CA_93013_USA-Living_room-DSC09416.jpg',
+      'images/units/221/18_4950_Sandyland_Rd_unit_221_Carpinteria_CA_93013_USA-Kitchen-DSC09422.jpg',
+      'images/units/221/25_4950_Sandyland_Rd_unit_221_Carpinteria_CA_93013_USA-Bedroom-DSC09431.jpg',
+      'images/units/221/29_4950_Sandyland_Rd_unit_221_Carpinteria_CA_93013_USA-Bathroom-DSC09437.jpg',
+      'images/units/221/08_4950_Sandyland_Rd_unit_221_Carpinteria_CA_93013_USA-Exterior-DSC09470.jpg'
+    ]
+  },
+  {
+    num: '224', badge: 'Modern Style', filter: 'upper balcony 1bed',
+    type: '1-Bedroom · Sleeps 4', name: 'Beach Condo #224',
+    desc: 'Modern open-plan unit with clean white kitchen, updated bathroom with subway tile shower and a lovely courtyard balcony view.',
+    tags: ['Full Kitchen','Balcony View','Wi-Fi','Heated Pool'],
+    price: 'From $185',
+    photos: [
+      'images/units/224/04_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Living_room-DSC05912.jpg',
+      'images/units/224/06_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Kitchen-DSC05927.jpg',
+      'images/units/224/07_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bedroom-DSC05933.jpg',
+      'images/units/224/09_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bathroom-DSC05945.jpg',
+      'images/units/224/01_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Exterior-DSC05951.jpg'
+    ]
+  },
+  {
+    num: '234', badge: 'Newly Renovated', filter: 'patio upper 1bed',
+    type: '1-Bedroom · Sleeps 4', name: 'Beach Bungalow #234',
+    desc: 'Beautifully renovated unit with stainless appliances, quartz counters, pendant lighting and a private brick patio with BBQ and red geraniums.',
+    tags: ['Full Kitchen','Private Patio','Stainless Appliances','Wi-Fi'],
+    price: 'From $210',
+    photos: [
+      'images/units/234/unit 234-1C - Copy.JPG',
+      'images/units/234/unit 234-3C.JPG',
+      'images/units/234/unit 234-7.JPG',
+      'images/units/234/unit 234-5C.JPG',
+      'images/units/234/unit 234-9C.JPG'
+    ]
+  },
+  {
+    num: '237', badge: 'Ocean View', filter: 'upper balcony 1bed',
+    type: '1-Bedroom · Sleeps 4', name: 'Ocean View Balcony #237',
+    desc: 'Private balcony with direct Pacific Ocean views, dark hardwood floors and a warm coastal aesthetic. One of our most sought-after units.',
+    tags: ['Full Kitchen','Ocean Balcony','Wi-Fi','Heated Pool'],
+    price: 'From $175',
+    photos: [
+      'images/units/237/05_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Living_room-DSC04667.jpg',
+      'images/units/237/06_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Kitchen-DSC04646.jpg',
+      'images/units/237/08_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bedroom-DSC04619.jpg',
+      'images/units/237/09_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Bathroom-DSC04637.jpg',
+      'images/units/237/02_4980_Sandyland_Rd_Carpinteria_CA_93013_USA-Exterior-DSC04685.jpg'
+    ]
+  }
+];
+
+function buildCards(units) {
+  return units.map(u => {
+    const slides = u.photos.map(p => `<div class="gallery-slide" style="background-image:url('${p}')"></div>`).join('');
+    const dots = u.photos.map((_, i) => `<span class="gallery-dot${i===0?' active':''}" data-idx="${i}"></span>`).join('');
+    const tags = u.tags.map(t => `<span class="feature-tag">${t}</span>`).join('');
+    return `
+      <div class="unit-card" data-filter="${u.filter}" data-unit="${u.num}">
+        <div class="unit-gallery">
+          <div class="gallery-slides" data-current="0">${slides}</div>
+          <button class="gallery-prev"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <button class="gallery-next"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+          <div class="gallery-dots">${dots}</div>
+          <div class="unit-badge">${u.badge}</div>
+        </div>
+        <div class="unit-body">
+          <p class="unit-type">${u.type}</p>
+          <h3 class="unit-name">${u.name}</h3>
+          <p class="unit-desc">${u.desc}</p>
+          <div class="unit-features">${tags}</div>
+          <div class="unit-footer">
+            <div class="unit-price">${u.price} <span>/ night</span></div>
+            <a href="booking.html" class="btn-book">Book Now</a>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+const grid = document.getElementById('units-grid');
+grid.innerHTML = buildCards(UNITS);
+
+function goToSlide(gallery, idx) {
+  const slides = gallery.querySelector('.gallery-slides');
+  const dots = gallery.querySelectorAll('.gallery-dot');
+  const total = dots.length;
+  idx = (idx + total) % total;
+  slides.style.transform = `translateX(-${idx * 100}%)`;
+  slides.dataset.current = idx;
+  dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+}
+
+grid.addEventListener('click', e => {
+  const gallery = e.target.closest('.unit-gallery');
+  if (!gallery) return;
+  const slides = gallery.querySelector('.gallery-slides');
+  const current = parseInt(slides.dataset.current || 0);
+  if (e.target.closest('.gallery-next')) goToSlide(gallery, current + 1);
+  if (e.target.closest('.gallery-prev')) goToSlide(gallery, current - 1);
+  if (e.target.closest('.gallery-dot')) goToSlide(gallery, parseInt(e.target.dataset.idx));
+});
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    const filter = this.dataset.filter;
+    const cards = document.querySelectorAll('.unit-card');
+    let visible = 0;
+    cards.forEach(card => {
+      const show = filter === 'all' || card.dataset.filter.includes(filter);
+      card.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    document.getElementById('units-count').textContent =
+      filter === 'all' ? `Showing all ${visible} units` : `Showing ${visible} unit${visible!==1?'s':''}`;
+  });
+});
+</script>
+</body>
+</html>
